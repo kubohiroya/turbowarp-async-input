@@ -1,0 +1,62 @@
+{
+  "extensionName": "Async Input",
+  "blocks": [
+    {
+      "opcode": "listenForKey",
+      "blockType": "COMMAND",
+      "text": "listen for key [KEY_ID] set runtime var [RUNTIME_VAR] to [VALUE]",
+      "description": "Registers or replaces a target-owned key binding.",
+      "featureFlag": "asyncInput",
+      "arguments": {
+        "KEY_ID": {"type": "STRING", "defaultValue": "KeyA"},
+        "RUNTIME_VAR": {"type": "STRING", "defaultValue": "input"},
+        "VALUE": {"type": "STRING", "defaultValue": "pressed"}
+      }
+    },
+    {
+      "opcode": "stopListeningForKey",
+      "blockType": "COMMAND",
+      "text": "stop listening for key [KEY_ID] for this target",
+      "description": "Removes this target's binding for one physical key code.",
+      "featureFlag": "asyncInput",
+      "arguments": {
+        "KEY_ID": {"type": "STRING", "defaultValue": "KeyA"}
+      }
+    },
+    {
+      "opcode": "stopAllKeyListeners",
+      "blockType": "COMMAND",
+      "text": "stop all key listeners registered by this target",
+      "description": "Removes every key binding owned by the current target.",
+      "featureFlag": "asyncInput",
+      "arguments": {}
+    },
+    {
+      "opcode": "listenForTouch",
+      "blockType": "COMMAND",
+      "text": "listen for touch on this sprite set runtime var [RUNTIME_VAR] to [VALUE]",
+      "description": "Registers or replaces the current sprite or clone's pointer binding.",
+      "featureFlag": "asyncInput",
+      "arguments": {
+        "RUNTIME_VAR": {"type": "STRING", "defaultValue": "input"},
+        "VALUE": {"type": "STRING", "defaultValue": "pressed"}
+      }
+    },
+    {
+      "opcode": "stopListeningForTouch",
+      "blockType": "COMMAND",
+      "text": "stop listening for touch on this sprite",
+      "description": "Removes the current target's pointer binding.",
+      "featureFlag": "asyncInput",
+      "arguments": {}
+    },
+    {
+      "opcode": "stopAllInputListeners",
+      "blockType": "COMMAND",
+      "text": "stop all input listeners registered by this target",
+      "description": "Removes every key and pointer binding owned by the current target.",
+      "featureFlag": "asyncInput",
+      "arguments": {}
+    }
+  ]
+}

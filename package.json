@@ -1,0 +1,22 @@
+{
+  "name": "@kubohiroya/turbowarp-async-input",
+  "version": "0.1.0",
+  "author": "Hiroya Kubo <hiroya@cuc.ac.jp>",
+  "type": "module",
+  "scripts": {
+    "dev": "vite build --watch",
+    "typecheck": "tsc --noEmit",
+    "build": "vite build",
+    "test": "vitest run",
+    "docs": "node scripts/generate-readme.mjs",
+    "docs:check": "npm run docs && git diff --exit-code -- README.md",
+    "check:dist": "npm run build && git diff --exit-code -- dist",
+    "check": "npm run typecheck && npm run test && npm run build && npm run docs:check && npm run check:dist"
+  },
+  "devDependencies": {
+    "@kubohiroya/vite-plugin-turbowarp-extension": "0.1.0",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.6",
+    "vitest": "^4.1.10"
+  }
+}
