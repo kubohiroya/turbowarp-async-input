@@ -17,7 +17,8 @@
     blocks
   };
   const FEATURE_FLAGS = {
-    asyncInput: false
+    asyncInput: true,
+    poseInput: false
   };
   function requireRuntimeVariables(runtime) {
     const extension = runtime.ext_lmsTempVars2;
@@ -137,7 +138,7 @@
         color2: "#247c72",
         color3: "#185b54",
         blocks: blockDefinitions.filter(
-          (block) => FEATURE_FLAGS.asyncInput
+          (block) => !block.featureFlag || FEATURE_FLAGS[block.featureFlag]
         ).map((block) => ({
           opcode: block.opcode,
           blockType: Scratch.BlockType[block.blockType],

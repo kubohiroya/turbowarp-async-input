@@ -10,9 +10,9 @@ Desktop with **Run extension without sandbox** enabled. Load TurboWarp's **Tempo
 extension before registering input. Pose input also requires TMPose with its accumulated pose
 scoring and change event features enabled.
 
-The initial implementation is guarded by the compile-time `asyncInput` feature flag in
-`config/feature-flags.ts`, which is OFF by default. Pose blocks additionally require the
-`poseInput` feature flag, which is also OFF by default.
+The distributed build enables key and touch blocks through the compile-time `asyncInput` feature
+flag in `config/feature-flags.ts`. Pose blocks additionally require the independently reversible
+`poseInput` feature flag, which remains OFF by default.
 
 ## Target ownership
 

@@ -149,13 +149,11 @@ describe('Async Input extension', () => {
     };
   }
 
-  it('keeps all blocks hidden while the feature flag is off', () => {
-    expect(FEATURE_FLAGS.asyncInput).toBe(false);
-    expect(new AsyncInputExtension().getInfo().blocks).toEqual([]);
-
+  it('publishes key and touch blocks while keeping rollback flags independent', () => {
     const mutableFlags = FEATURE_FLAGS as unknown as {asyncInput: boolean; poseInput: boolean};
-    mutableFlags.asyncInput = true;
     try {
+      expect(FEATURE_FLAGS.asyncInput).toBe(true);
+      expect(FEATURE_FLAGS.poseInput).toBe(false);
       expect(new AsyncInputExtension().getInfo().blocks.map((block) => block.opcode))
         .toEqual([
           'listenForKey',
@@ -178,9 +176,11 @@ describe('Async Input extension', () => {
           'stopAllPoseListeners',
           'stopAllInputListeners'
         ]);
+      mutableFlags.asyncInput = false;
+      expect(new AsyncInputExtension().getInfo().blocks).toEqual([]);
     } finally {
       mutableFlags.poseInput = false;
-      mutableFlags.asyncInput = false;
+      mutableFlags.asyncInput = true;
     }
   });
 
