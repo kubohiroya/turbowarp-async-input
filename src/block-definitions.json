@@ -14,6 +14,19 @@
       }
     },
     {
+      "opcode": "listenForKeyAndBroadcast",
+      "blockType": "COMMAND",
+      "text": "listen for key [KEY_ID] set runtime var [RUNTIME_VAR] to [VALUE] and broadcast [MESSAGE]",
+      "description": "Registers or replaces a target-owned key binding that broadcasts after updating the runtime variable.",
+      "featureFlag": "asyncInput",
+      "arguments": {
+        "KEY_ID": {"type": "STRING", "defaultValue": "KeyA"},
+        "RUNTIME_VAR": {"type": "STRING", "defaultValue": "input"},
+        "VALUE": {"type": "STRING", "defaultValue": "pressed"},
+        "MESSAGE": {"type": "STRING", "defaultValue": "message1"}
+      }
+    },
+    {
       "opcode": "stopListeningForKey",
       "blockType": "COMMAND",
       "text": "stop listening for key [KEY_ID] for this target",
@@ -40,6 +53,18 @@
       "arguments": {
         "RUNTIME_VAR": {"type": "STRING", "defaultValue": "input"},
         "VALUE": {"type": "STRING", "defaultValue": "pressed"}
+      }
+    },
+    {
+      "opcode": "listenForTouchAndBroadcast",
+      "blockType": "COMMAND",
+      "text": "listen for touch on this sprite set runtime var [RUNTIME_VAR] to [VALUE] and broadcast [MESSAGE]",
+      "description": "Registers or replaces the current sprite or clone's pointer binding that broadcasts after updating the runtime variable.",
+      "featureFlag": "asyncInput",
+      "arguments": {
+        "RUNTIME_VAR": {"type": "STRING", "defaultValue": "input"},
+        "VALUE": {"type": "STRING", "defaultValue": "pressed"},
+        "MESSAGE": {"type": "STRING", "defaultValue": "message1"}
       }
     },
     {

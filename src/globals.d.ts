@@ -26,6 +26,11 @@ interface TurboWarpRuntime {
   ext_tmpose?: TMPoseExtension;
   on(eventName: string, listener: (payload?: any) => void): void;
   off(eventName: string, listener: (payload?: any) => void): void;
+  startHats(
+    opcode: string,
+    matchFields?: Record<string, unknown>,
+    target?: TurboWarpTarget
+  ): unknown[];
 }
 
 interface ScratchBlockUtility {
