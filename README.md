@@ -1,18 +1,26 @@
 # TurboWarp Async Input
 
-A target-scoped asynchronous keyboard and pointer input extension for TurboWarp Temporary Variables.
+A target-scoped asynchronous keyboard, pointer, and accumulated pose input extension for
+TurboWarp Temporary Variables.
 
 ## Installation
 
-Build or download `dist/async-input.js`, then load it as a local custom extension in TurboWarp Desktop with **Run extension without sandbox** enabled. Load TurboWarp's **Temporary Variables** extension before registering input.
+Build or download `dist/async-input.js`, then load it as a local custom extension in TurboWarp
+Desktop with **Run extension without sandbox** enabled. Load TurboWarp's **Temporary Variables**
+extension before registering input. Pose input also requires TMPose with its accumulated pose
+scoring and change event features enabled.
 
-The initial implementation is guarded by the compile-time `asyncInput` feature flag in `config/feature-flags.ts`, which is OFF by default.
+The initial implementation is guarded by the compile-time `asyncInput` feature flag in
+`config/feature-flags.ts`, which is OFF by default. Pose blocks additionally require the
+`poseInput` feature flag, which is also OFF by default.
 
 ## Target ownership
 
 Every binding belongs to the sprite, clone, or stage that executes the registration block. Key bindings are identified by the current target ID and `KeyboardEvent.code`. Touch bindings are identified by the current sprite or clone target ID. Two clones of the same sprite can therefore register independent bindings.
 
-The extension uses one window `keydown` listener and one renderer-canvas `pointerdown` listener regardless of the number of bindings. Target deletion removes that target's bindings. Green flag, project stop, and runtime disposal remove all bindings.
+The extension uses one window `keydown` listener, one renderer-canvas `pointerdown` listener, and
+one TMPose runtime-event listener regardless of the number of bindings. Target deletion removes
+that target's bindings. Green flag, project stop, and runtime disposal remove all bindings.
 
 ## Keyboard input
 
@@ -23,6 +31,17 @@ Repeated keydown events, IME composition, and events from input, textarea, selec
 ## Touch input
 
 The touch registration block always refers to the sprite or clone that executes it. Stage targets are rejected. The renderer's topmost pick result is matched by target ID, so original sprites and clones remain distinct and transparent pixels follow TurboWarp renderer behavior.
+
+## Accumulated pose input
+
+The pose registration block listens for TMPose's `TMPOSE_ACCUMULATED_POSE_CHANGED` version 1
+event. It runs only when the selected accumulated pose name changes to the registered name;
+confidence changes that keep the same accumulated pose do not retrigger it. Leaving a pose and
+later returning to it triggers the binding again.
+
+Bindings are keyed by the executing target ID and pose name. Multiple targets can listen for the
+same pose independently, and one target can listen for multiple poses. Registration fails without
+Temporary Variables or a TMPose extension that reports accumulated pose event support.
 
 ## Compound arithmetic
 
@@ -46,6 +65,17 @@ action=touchInput:a1,a2:v1,v1:+2,+5
 ```
 
 must execute `listen for touch on this sprite...` once in a1's target context and once in a2's target context. The extension stores only the resulting target IDs.
+
+Pose routing follows the same pattern:
+
+```text
+action=poseInput:jump:v1:+2
+action=poseInput:jump:
+action=poseInput:
+```
+
+These map to registering `jump` for the current target, removing that target's `jump` binding,
+and removing every pose binding owned by the current target.
 
 ## Blocks
 
@@ -107,9 +137,43 @@ Removes the current target's pointer binding.
 | Opcode | `stopListeningForTouch` |
 | Feature flag | `asyncInput` |
 
+### `listen for accumulated pose [POSE_NAME] set runtime var [RUNTIME_VAR] to [VALUE]`
+
+Registers or replaces a target-owned accumulated pose binding.
+
+| Property | Value |
+|---|---|
+| Type | Command |
+| Opcode | `listenForPose` |
+| Feature flag | `poseInput` |
+| `POSE_NAME` | String, default: `jump` |
+| `RUNTIME_VAR` | String, default: `input` |
+| `VALUE` | String, default: `detected` |
+
+### `stop listening for accumulated pose [POSE_NAME] for this target`
+
+Removes this target's binding for one accumulated pose name.
+
+| Property | Value |
+|---|---|
+| Type | Command |
+| Opcode | `stopListeningForPose` |
+| Feature flag | `poseInput` |
+| `POSE_NAME` | String, default: `jump` |
+
+### `stop all pose listeners registered by this target`
+
+Removes every accumulated pose binding owned by the current target.
+
+| Property | Value |
+|---|---|
+| Type | Command |
+| Opcode | `stopAllPoseListeners` |
+| Feature flag | `poseInput` |
+
 ### `stop all input listeners registered by this target`
 
-Removes every key and pointer binding owned by the current target.
+Removes every key, pointer, and accumulated pose binding owned by the current target.
 
 | Property | Value |
 |---|---|

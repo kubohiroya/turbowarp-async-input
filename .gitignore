@@ -1,4 +1,5 @@
 node_modules/
+.serena/
 coverage/
 *.log
 .DS_Store

@@ -51,10 +51,40 @@
       "arguments": {}
     },
     {
+      "opcode": "listenForPose",
+      "blockType": "COMMAND",
+      "text": "listen for accumulated pose [POSE_NAME] set runtime var [RUNTIME_VAR] to [VALUE]",
+      "description": "Registers or replaces a target-owned accumulated pose binding.",
+      "featureFlag": "poseInput",
+      "arguments": {
+        "POSE_NAME": {"type": "STRING", "defaultValue": "jump"},
+        "RUNTIME_VAR": {"type": "STRING", "defaultValue": "input"},
+        "VALUE": {"type": "STRING", "defaultValue": "detected"}
+      }
+    },
+    {
+      "opcode": "stopListeningForPose",
+      "blockType": "COMMAND",
+      "text": "stop listening for accumulated pose [POSE_NAME] for this target",
+      "description": "Removes this target's binding for one accumulated pose name.",
+      "featureFlag": "poseInput",
+      "arguments": {
+        "POSE_NAME": {"type": "STRING", "defaultValue": "jump"}
+      }
+    },
+    {
+      "opcode": "stopAllPoseListeners",
+      "blockType": "COMMAND",
+      "text": "stop all pose listeners registered by this target",
+      "description": "Removes every accumulated pose binding owned by the current target.",
+      "featureFlag": "poseInput",
+      "arguments": {}
+    },
+    {
       "opcode": "stopAllInputListeners",
       "blockType": "COMMAND",
       "text": "stop all input listeners registered by this target",
-      "description": "Removes every key and pointer binding owned by the current target.",
+      "description": "Removes every key, pointer, and accumulated pose binding owned by the current target.",
       "featureFlag": "asyncInput",
       "arguments": {}
     }

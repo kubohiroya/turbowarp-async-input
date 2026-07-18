@@ -7,7 +7,8 @@ import {
 } from './runtime-variables.js';
 
 export const EXTENSION_ID = 'twAsyncInput';
-export const EXTENSION_VERSION = '2026-07-18-target-scoped-input-v1';
+export const EXTENSION_VERSION = '2026-07-18-accumulated-pose-input-v1';
+export const ACCUMULATED_POSE_CHANGED_EVENT = 'TMPOSE_ACCUMULATED_POSE_CHANGED';
 
 type BlockArgs = Record<string, unknown>;
 type ArithmeticOperator = '+' | '-' | '*' | '/';
@@ -28,6 +29,15 @@ interface ArithmeticRuntimeBinding {
 type RuntimeBinding = SetRuntimeBinding | ArithmeticRuntimeBinding;
 type OwnedBinding = RuntimeBinding & {ownerTargetId: string};
 
+interface AccumulatedPoseChangedEventV1 {
+  version: 1;
+  poseName: string;
+  previousPoseName: string;
+  score: number;
+  reason: 'prediction' | 'reset' | 'stop';
+  timestamp: number;
+}
+
 interface DefinitionArgument {
   type: keyof typeof Scratch.ArgumentType;
   defaultValue: unknown;
@@ -42,6 +52,7 @@ interface DefinitionBlock {
 }
 
 const ARITHMETIC_OPERATORS = new Set<ArithmeticOperator>(['+', '-', '*', '/']);
+const POSE_CHANGE_REASONS = new Set(['prediction', 'reset', 'stop']);
 const blockDefinitions = definitions.blocks as DefinitionBlock[];
 
 function normalizeName(value: unknown): string {
@@ -83,12 +94,31 @@ export function isEditableTarget(target: EventTarget | null): boolean {
     || element.isContentEditable === true;
 }
 
+function isAccumulatedPoseChangedEventV1(
+  payload: unknown
+): payload is AccumulatedPoseChangedEventV1 {
+  if (!payload || typeof payload !== 'object') return false;
+  const event = payload as Partial<AccumulatedPoseChangedEventV1>;
+  return event.version === 1
+    && typeof event.poseName === 'string'
+    && typeof event.previousPoseName === 'string'
+    && event.poseName !== event.previousPoseName
+    && typeof event.score === 'number'
+    && Number.isFinite(event.score)
+    && typeof event.reason === 'string'
+    && POSE_CHANGE_REASONS.has(event.reason)
+    && typeof event.timestamp === 'number'
+    && Number.isFinite(event.timestamp);
+}
+
 export class AsyncInputExtension {
   private readonly runtime = Scratch.vm.runtime;
   private readonly keyBindings = new Map<string, Map<string, OwnedBinding>>();
   private readonly touchBindings = new Map<string, OwnedBinding>();
+  private readonly poseBindings = new Map<string, Map<string, OwnedBinding>>();
   private keyListenerAttached = false;
   private pointerListenerAttached = false;
+  private poseListenerAttached = false;
   private runtimeListenersAttached = false;
   private runtimeDependencyFailureReported = false;
   private disposed = false;
@@ -105,7 +135,10 @@ export class AsyncInputExtension {
       color2: '#247c72',
       color3: '#185b54',
       blocks: blockDefinitions
-        .filter((block) => !block.featureFlag || FEATURE_FLAGS[block.featureFlag])
+        .filter((block) =>
+          FEATURE_FLAGS.asyncInput
+          && (!block.featureFlag || FEATURE_FLAGS[block.featureFlag])
+        )
         .map((block) => ({
           opcode: block.opcode,
           blockType: Scratch.BlockType[block.blockType],
@@ -181,6 +214,42 @@ export class AsyncInputExtension {
     this.detachPointerListenerIfUnused();
   }
 
+  listenForPose(args: BlockArgs, util: ScratchBlockUtility): void {
+    this.requireActiveRuntime();
+    const owner = this.requireTarget(util);
+    const poseName = normalizeName(args.POSE_NAME);
+    const runtimeVariable = normalizeName(args.RUNTIME_VAR);
+    const value = String(args.VALUE ?? '');
+    if (!poseName) throw new Error('POSE_NAME must be specified.');
+    if (!runtimeVariable) throw new Error('RUNTIME_VAR must be specified.');
+
+    requireRuntimeVariables(this.runtime);
+    this.requireAccumulatedPoseEvents();
+    const binding = {
+      ownerTargetId: owner.id,
+      ...parseRuntimeBinding(runtimeVariable, value)
+    };
+    const bindingsForPose = this.poseBindings.get(poseName) ?? new Map<string, OwnedBinding>();
+    bindingsForPose.set(owner.id, binding);
+    this.poseBindings.set(poseName, bindingsForPose);
+    this.runtimeDependencyFailureReported = false;
+    this.attachPoseListenerIfNeeded();
+  }
+
+  stopListeningForPose(args: BlockArgs, util: ScratchBlockUtility): void {
+    this.requireActiveRuntime();
+    const owner = this.requireTarget(util);
+    const poseName = normalizeName(args.POSE_NAME);
+    if (!poseName) throw new Error('POSE_NAME must be specified.');
+    this.removePoseBinding(owner.id, poseName);
+  }
+
+  stopAllPoseListeners(_args: BlockArgs, util: ScratchBlockUtility): void {
+    this.requireActiveRuntime();
+    const owner = this.requireTarget(util);
+    this.removeAllPoseBindingsForTarget(owner.id);
+  }
+
   stopAllInputListeners(_args: BlockArgs, util: ScratchBlockUtility): void {
     this.requireActiveRuntime();
     const owner = this.requireTarget(util);
@@ -212,6 +281,14 @@ export class AsyncInputExtension {
     if (binding) this.writeFromBackgroundEvent(binding);
   };
 
+  private readonly handleAccumulatedPoseChanged = (payload?: unknown): void => {
+    if (!isAccumulatedPoseChangedEventV1(payload) || !payload.poseName) return;
+    const bindings = [...(this.poseBindings.get(payload.poseName)?.values() ?? [])];
+    for (const binding of bindings) {
+      if (!this.writeFromBackgroundEvent(binding)) break;
+    }
+  };
+
   private readonly handleProjectBoundary = (): void => {
     this.stopAllBindings();
   };
@@ -240,6 +317,21 @@ export class AsyncInputExtension {
     const target = this.requireTarget(util);
     if (target.isStage) throw new Error('Touch input must be registered by a sprite or clone.');
     return target;
+  }
+
+  private requireAccumulatedPoseEvents(): TMPoseExtension {
+    const extension = this.runtime.ext_tmpose;
+    if (
+      !extension
+      || typeof extension.supportsAccumulatedPoseEvents !== 'function'
+      || !extension.supportsAccumulatedPoseEvents()
+    ) {
+      throw new Error(
+        'TMPose accumulated pose events are unavailable. '
+        + 'Load TMPose with temporalPoseScoring and accumulatedPoseEvents enabled.'
+      );
+    }
+    return extension;
   }
 
   private writeFromBackgroundEvent(binding: RuntimeBinding): boolean {
@@ -308,17 +400,35 @@ export class AsyncInputExtension {
     this.detachKeyListenerIfUnused();
   }
 
+  private removePoseBinding(ownerTargetId: string, poseName: string): void {
+    const bindingsForPose = this.poseBindings.get(poseName);
+    bindingsForPose?.delete(ownerTargetId);
+    if (bindingsForPose?.size === 0) this.poseBindings.delete(poseName);
+    this.detachPoseListenerIfUnused();
+  }
+
+  private removeAllPoseBindingsForTarget(ownerTargetId: string): void {
+    for (const [poseName, bindingsForPose] of this.poseBindings) {
+      bindingsForPose.delete(ownerTargetId);
+      if (bindingsForPose.size === 0) this.poseBindings.delete(poseName);
+    }
+    this.detachPoseListenerIfUnused();
+  }
+
   private removeAllBindingsForTarget(ownerTargetId: string): void {
     this.removeAllKeyBindingsForTarget(ownerTargetId);
     this.touchBindings.delete(ownerTargetId);
     this.detachPointerListenerIfUnused();
+    this.removeAllPoseBindingsForTarget(ownerTargetId);
   }
 
   private stopAllBindings(): void {
     this.keyBindings.clear();
     this.touchBindings.clear();
+    this.poseBindings.clear();
     this.detachKeyListenerIfUnused();
     this.detachPointerListenerIfUnused();
+    this.detachPoseListenerIfUnused();
   }
 
   private attachKeyListenerIfNeeded(): void {
@@ -343,6 +453,18 @@ export class AsyncInputExtension {
     if (!this.pointerListenerAttached || this.touchBindings.size > 0) return;
     this.runtime.renderer.canvas.removeEventListener('pointerdown', this.handlePointerDown);
     this.pointerListenerAttached = false;
+  }
+
+  private attachPoseListenerIfNeeded(): void {
+    if (this.poseListenerAttached || this.poseBindings.size === 0) return;
+    this.runtime.on(ACCUMULATED_POSE_CHANGED_EVENT, this.handleAccumulatedPoseChanged);
+    this.poseListenerAttached = true;
+  }
+
+  private detachPoseListenerIfUnused(): void {
+    if (!this.poseListenerAttached || this.poseBindings.size > 0) return;
+    this.runtime.off(ACCUMULATED_POSE_CHANGED_EVENT, this.handleAccumulatedPoseChanged);
+    this.poseListenerAttached = false;
   }
 
   private registerRuntimeListeners(): void {

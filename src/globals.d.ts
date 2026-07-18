@@ -15,12 +15,17 @@ interface TemporaryVariablesExtension {
   runtimeVariableExists(args: {VAR: string}): boolean;
 }
 
+interface TMPoseExtension {
+  supportsAccumulatedPoseEvents(): boolean;
+}
+
 interface TurboWarpRuntime {
   renderer: TurboWarpRenderer;
   targets: TurboWarpTarget[];
   ext_lmsTempVars2?: TemporaryVariablesExtension;
-  on(eventName: string, listener: (target?: TurboWarpTarget) => void): void;
-  off(eventName: string, listener: (target?: TurboWarpTarget) => void): void;
+  ext_tmpose?: TMPoseExtension;
+  on(eventName: string, listener: (payload?: any) => void): void;
+  off(eventName: string, listener: (payload?: any) => void): void;
 }
 
 interface ScratchBlockUtility {
