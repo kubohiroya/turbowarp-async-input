@@ -51,6 +51,8 @@ interface DefinitionBlock {
   arguments: Record<string, DefinitionArgument>;
 }
 
+type FeatureFlags = Readonly<Record<keyof typeof FEATURE_FLAGS, boolean>>;
+
 const ARITHMETIC_OPERATORS = new Set<ArithmeticOperator>(['+', '-', '*', '/']);
 const POSE_CHANGE_REASONS = new Set(['prediction', 'reset', 'stop']);
 const blockDefinitions = definitions.blocks as DefinitionBlock[];
@@ -123,7 +125,7 @@ export class AsyncInputExtension {
   private runtimeDependencyFailureReported = false;
   private disposed = false;
 
-  constructor() {
+  constructor(private readonly featureFlags: FeatureFlags = FEATURE_FLAGS) {
     this.registerRuntimeListeners();
   }
 
@@ -136,8 +138,8 @@ export class AsyncInputExtension {
       color3: '#185b54',
       blocks: blockDefinitions
         .filter((block) =>
-          FEATURE_FLAGS.asyncInput
-          && (!block.featureFlag || FEATURE_FLAGS[block.featureFlag])
+          this.featureFlags.asyncInput
+          && (!block.featureFlag || this.featureFlags[block.featureFlag])
         )
         .map((block) => ({
           opcode: block.opcode,

@@ -150,38 +150,37 @@ describe('Async Input extension', () => {
   }
 
   it('publishes key and touch blocks while keeping rollback flags independent', () => {
-    const mutableFlags = FEATURE_FLAGS as unknown as {asyncInput: boolean; poseInput: boolean};
-    try {
-      expect(FEATURE_FLAGS.asyncInput).toBe(true);
-      expect(FEATURE_FLAGS.poseInput).toBe(false);
-      expect(new AsyncInputExtension().getInfo().blocks.map((block) => block.opcode))
-        .toEqual([
-          'listenForKey',
-          'stopListeningForKey',
-          'stopAllKeyListeners',
-          'listenForTouch',
-          'stopListeningForTouch',
-          'stopAllInputListeners'
-        ]);
-      mutableFlags.poseInput = true;
-      expect(new AsyncInputExtension().getInfo().blocks.map((block) => block.opcode))
-        .toEqual([
-          'listenForKey',
-          'stopListeningForKey',
-          'stopAllKeyListeners',
-          'listenForTouch',
-          'stopListeningForTouch',
-          'listenForPose',
-          'stopListeningForPose',
-          'stopAllPoseListeners',
-          'stopAllInputListeners'
-        ]);
-      mutableFlags.asyncInput = false;
-      expect(new AsyncInputExtension().getInfo().blocks).toEqual([]);
-    } finally {
-      mutableFlags.poseInput = false;
-      mutableFlags.asyncInput = true;
-    }
+    expect(FEATURE_FLAGS.asyncInput).toBe(true);
+    expect(FEATURE_FLAGS.poseInput).toBe(false);
+    expect(new AsyncInputExtension().getInfo().blocks.map((block) => block.opcode))
+      .toEqual([
+        'listenForKey',
+        'stopListeningForKey',
+        'stopAllKeyListeners',
+        'listenForTouch',
+        'stopListeningForTouch',
+        'stopAllInputListeners'
+      ]);
+
+    expect(new AsyncInputExtension({
+      asyncInput: true,
+      poseInput: true
+    }).getInfo().blocks.map((block) => block.opcode)).toEqual([
+      'listenForKey',
+      'stopListeningForKey',
+      'stopAllKeyListeners',
+      'listenForTouch',
+      'stopListeningForTouch',
+      'listenForPose',
+      'stopListeningForPose',
+      'stopAllPoseListeners',
+      'stopAllInputListeners'
+    ]);
+
+    expect(new AsyncInputExtension({
+      asyncInput: false,
+      poseInput: true
+    }).getInfo().blocks).toEqual([]);
   });
 
   it('allows multiple targets to own independent bindings for the same key', () => {
