@@ -17,7 +17,8 @@
     blocks
   };
   const FEATURE_FLAGS = {
-    asyncInput: false
+    asyncInput: true,
+    poseInput: false
   };
   function requireRuntimeVariables(runtime) {
     const extension = runtime.ext_lmsTempVars2;
@@ -76,7 +77,8 @@
     return event.version === 1 && typeof event.poseName === "string" && typeof event.previousPoseName === "string" && event.poseName !== event.previousPoseName && typeof event.score === "number" && Number.isFinite(event.score) && typeof event.reason === "string" && POSE_CHANGE_REASONS.has(event.reason) && typeof event.timestamp === "number" && Number.isFinite(event.timestamp);
   }
   class AsyncInputExtension {
-    constructor() {
+    constructor(featureFlags = FEATURE_FLAGS) {
+      __publicField(this, "featureFlags");
       __publicField(this, "runtime", Scratch.vm.runtime);
       __publicField(this, "keyBindings", /* @__PURE__ */ new Map());
       __publicField(this, "touchBindings", /* @__PURE__ */ new Map());
@@ -127,6 +129,7 @@
         this.stopAllBindings();
         this.unregisterRuntimeListeners();
       });
+      this.featureFlags = featureFlags;
       this.registerRuntimeListeners();
     }
     getInfo() {
@@ -137,7 +140,7 @@
         color2: "#247c72",
         color3: "#185b54",
         blocks: blockDefinitions.filter(
-          (block) => FEATURE_FLAGS.asyncInput
+          (block) => this.featureFlags.asyncInput && (!block.featureFlag || this.featureFlags[block.featureFlag])
         ).map((block) => ({
           opcode: block.opcode,
           blockType: Scratch.BlockType[block.blockType],
