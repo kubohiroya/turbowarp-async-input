@@ -1,3 +1,4 @@
 export const FEATURE_FLAGS = {
-  asyncInput: false
+  asyncInput: false,
+  poseInput: false
 } as const;

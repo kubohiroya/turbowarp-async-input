@@ -11,7 +11,7 @@
   var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
   var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   const extensionName = "Async Input";
-  const blocks = [{ "opcode": "listenForKey", "blockType": "COMMAND", "text": "listen for key [KEY_ID] set runtime var [RUNTIME_VAR] to [VALUE]", "description": "Registers or replaces a target-owned key binding.", "featureFlag": "asyncInput", "arguments": { "KEY_ID": { "type": "STRING", "defaultValue": "KeyA" }, "RUNTIME_VAR": { "type": "STRING", "defaultValue": "input" }, "VALUE": { "type": "STRING", "defaultValue": "pressed" } } }, { "opcode": "stopListeningForKey", "blockType": "COMMAND", "text": "stop listening for key [KEY_ID] for this target", "description": "Removes this target's binding for one physical key code.", "featureFlag": "asyncInput", "arguments": { "KEY_ID": { "type": "STRING", "defaultValue": "KeyA" } } }, { "opcode": "stopAllKeyListeners", "blockType": "COMMAND", "text": "stop all key listeners registered by this target", "description": "Removes every key binding owned by the current target.", "featureFlag": "asyncInput", "arguments": {} }, { "opcode": "listenForTouch", "blockType": "COMMAND", "text": "listen for touch on this sprite set runtime var [RUNTIME_VAR] to [VALUE]", "description": "Registers or replaces the current sprite or clone's pointer binding.", "featureFlag": "asyncInput", "arguments": { "RUNTIME_VAR": { "type": "STRING", "defaultValue": "input" }, "VALUE": { "type": "STRING", "defaultValue": "pressed" } } }, { "opcode": "stopListeningForTouch", "blockType": "COMMAND", "text": "stop listening for touch on this sprite", "description": "Removes the current target's pointer binding.", "featureFlag": "asyncInput", "arguments": {} }, { "opcode": "stopAllInputListeners", "blockType": "COMMAND", "text": "stop all input listeners registered by this target", "description": "Removes every key and pointer binding owned by the current target.", "featureFlag": "asyncInput", "arguments": {} }];
+  const blocks = [{ "opcode": "listenForKey", "blockType": "COMMAND", "text": "listen for key [KEY_ID] set runtime var [RUNTIME_VAR] to [VALUE]", "description": "Registers or replaces a target-owned key binding.", "featureFlag": "asyncInput", "arguments": { "KEY_ID": { "type": "STRING", "defaultValue": "KeyA" }, "RUNTIME_VAR": { "type": "STRING", "defaultValue": "input" }, "VALUE": { "type": "STRING", "defaultValue": "pressed" } } }, { "opcode": "stopListeningForKey", "blockType": "COMMAND", "text": "stop listening for key [KEY_ID] for this target", "description": "Removes this target's binding for one physical key code.", "featureFlag": "asyncInput", "arguments": { "KEY_ID": { "type": "STRING", "defaultValue": "KeyA" } } }, { "opcode": "stopAllKeyListeners", "blockType": "COMMAND", "text": "stop all key listeners registered by this target", "description": "Removes every key binding owned by the current target.", "featureFlag": "asyncInput", "arguments": {} }, { "opcode": "listenForTouch", "blockType": "COMMAND", "text": "listen for touch on this sprite set runtime var [RUNTIME_VAR] to [VALUE]", "description": "Registers or replaces the current sprite or clone's pointer binding.", "featureFlag": "asyncInput", "arguments": { "RUNTIME_VAR": { "type": "STRING", "defaultValue": "input" }, "VALUE": { "type": "STRING", "defaultValue": "pressed" } } }, { "opcode": "stopListeningForTouch", "blockType": "COMMAND", "text": "stop listening for touch on this sprite", "description": "Removes the current target's pointer binding.", "featureFlag": "asyncInput", "arguments": {} }, { "opcode": "listenForPose", "blockType": "COMMAND", "text": "listen for accumulated pose [POSE_NAME] set runtime var [RUNTIME_VAR] to [VALUE]", "description": "Registers or replaces a target-owned accumulated pose binding.", "featureFlag": "poseInput", "arguments": { "POSE_NAME": { "type": "STRING", "defaultValue": "jump" }, "RUNTIME_VAR": { "type": "STRING", "defaultValue": "input" }, "VALUE": { "type": "STRING", "defaultValue": "detected" } } }, { "opcode": "stopListeningForPose", "blockType": "COMMAND", "text": "stop listening for accumulated pose [POSE_NAME] for this target", "description": "Removes this target's binding for one accumulated pose name.", "featureFlag": "poseInput", "arguments": { "POSE_NAME": { "type": "STRING", "defaultValue": "jump" } } }, { "opcode": "stopAllPoseListeners", "blockType": "COMMAND", "text": "stop all pose listeners registered by this target", "description": "Removes every accumulated pose binding owned by the current target.", "featureFlag": "poseInput", "arguments": {} }, { "opcode": "stopAllInputListeners", "blockType": "COMMAND", "text": "stop all input listeners registered by this target", "description": "Removes every key, pointer, and accumulated pose binding owned by the current target.", "featureFlag": "asyncInput", "arguments": {} }];
   const definitions = {
     extensionName,
     blocks
@@ -35,7 +35,9 @@
     extension.setRuntimeVariable({ VAR: name, STRING: value });
   }
   const EXTENSION_ID = "twAsyncInput";
+  const ACCUMULATED_POSE_CHANGED_EVENT = "TMPOSE_ACCUMULATED_POSE_CHANGED";
   const ARITHMETIC_OPERATORS = /* @__PURE__ */ new Set(["+", "-", "*", "/"]);
+  const POSE_CHANGE_REASONS = /* @__PURE__ */ new Set(["prediction", "reset", "stop"]);
   const blockDefinitions = definitions.blocks;
   function normalizeName(value) {
     return String(value ?? "").trim();
@@ -68,13 +70,20 @@
     const tagName = typeof element.tagName === "string" ? element.tagName.toUpperCase() : "";
     return tagName === "INPUT" || tagName === "TEXTAREA" || tagName === "SELECT" || element.isContentEditable === true;
   }
+  function isAccumulatedPoseChangedEventV1(payload) {
+    if (!payload || typeof payload !== "object") return false;
+    const event = payload;
+    return event.version === 1 && typeof event.poseName === "string" && typeof event.previousPoseName === "string" && event.poseName !== event.previousPoseName && typeof event.score === "number" && Number.isFinite(event.score) && typeof event.reason === "string" && POSE_CHANGE_REASONS.has(event.reason) && typeof event.timestamp === "number" && Number.isFinite(event.timestamp);
+  }
   class AsyncInputExtension {
     constructor() {
       __publicField(this, "runtime", Scratch.vm.runtime);
       __publicField(this, "keyBindings", /* @__PURE__ */ new Map());
       __publicField(this, "touchBindings", /* @__PURE__ */ new Map());
+      __publicField(this, "poseBindings", /* @__PURE__ */ new Map());
       __publicField(this, "keyListenerAttached", false);
       __publicField(this, "pointerListenerAttached", false);
+      __publicField(this, "poseListenerAttached", false);
       __publicField(this, "runtimeListenersAttached", false);
       __publicField(this, "runtimeDependencyFailureReported", false);
       __publicField(this, "disposed", false);
@@ -100,6 +109,13 @@
         const binding = this.touchBindings.get(target.id);
         if (binding) this.writeFromBackgroundEvent(binding);
       });
+      __publicField(this, "handleAccumulatedPoseChanged", (payload) => {
+        if (!isAccumulatedPoseChangedEventV1(payload) || !payload.poseName) return;
+        const bindings = [...this.poseBindings.get(payload.poseName)?.values() ?? []];
+        for (const binding of bindings) {
+          if (!this.writeFromBackgroundEvent(binding)) break;
+        }
+      });
       __publicField(this, "handleProjectBoundary", () => {
         this.stopAllBindings();
       });
@@ -120,7 +136,9 @@
         color1: "#2f9d8f",
         color2: "#247c72",
         color3: "#185b54",
-        blocks: blockDefinitions.filter((block) => !block.featureFlag || FEATURE_FLAGS[block.featureFlag]).map((block) => ({
+        blocks: blockDefinitions.filter(
+          (block) => FEATURE_FLAGS.asyncInput
+        ).map((block) => ({
           opcode: block.opcode,
           blockType: Scratch.BlockType[block.blockType],
           text: Scratch.translate(block.text),
@@ -187,6 +205,38 @@
       this.touchBindings.delete(owner.id);
       this.detachPointerListenerIfUnused();
     }
+    listenForPose(args, util) {
+      this.requireActiveRuntime();
+      const owner = this.requireTarget(util);
+      const poseName = normalizeName(args.POSE_NAME);
+      const runtimeVariable = normalizeName(args.RUNTIME_VAR);
+      const value = String(args.VALUE ?? "");
+      if (!poseName) throw new Error("POSE_NAME must be specified.");
+      if (!runtimeVariable) throw new Error("RUNTIME_VAR must be specified.");
+      requireRuntimeVariables(this.runtime);
+      this.requireAccumulatedPoseEvents();
+      const binding = {
+        ownerTargetId: owner.id,
+        ...parseRuntimeBinding(runtimeVariable, value)
+      };
+      const bindingsForPose = this.poseBindings.get(poseName) ?? /* @__PURE__ */ new Map();
+      bindingsForPose.set(owner.id, binding);
+      this.poseBindings.set(poseName, bindingsForPose);
+      this.runtimeDependencyFailureReported = false;
+      this.attachPoseListenerIfNeeded();
+    }
+    stopListeningForPose(args, util) {
+      this.requireActiveRuntime();
+      const owner = this.requireTarget(util);
+      const poseName = normalizeName(args.POSE_NAME);
+      if (!poseName) throw new Error("POSE_NAME must be specified.");
+      this.removePoseBinding(owner.id, poseName);
+    }
+    stopAllPoseListeners(_args, util) {
+      this.requireActiveRuntime();
+      const owner = this.requireTarget(util);
+      this.removeAllPoseBindingsForTarget(owner.id);
+    }
     stopAllInputListeners(_args, util) {
       this.requireActiveRuntime();
       const owner = this.requireTarget(util);
@@ -204,6 +254,15 @@
       const target = this.requireTarget(util);
       if (target.isStage) throw new Error("Touch input must be registered by a sprite or clone.");
       return target;
+    }
+    requireAccumulatedPoseEvents() {
+      const extension = this.runtime.ext_tmpose;
+      if (!extension || typeof extension.supportsAccumulatedPoseEvents !== "function" || !extension.supportsAccumulatedPoseEvents()) {
+        throw new Error(
+          "TMPose accumulated pose events are unavailable. Load TMPose with temporalPoseScoring and accumulatedPoseEvents enabled."
+        );
+      }
+      return extension;
     }
     writeFromBackgroundEvent(binding) {
       let runtimeVariables;
@@ -268,16 +327,32 @@
       }
       this.detachKeyListenerIfUnused();
     }
+    removePoseBinding(ownerTargetId, poseName) {
+      const bindingsForPose = this.poseBindings.get(poseName);
+      bindingsForPose?.delete(ownerTargetId);
+      if (bindingsForPose?.size === 0) this.poseBindings.delete(poseName);
+      this.detachPoseListenerIfUnused();
+    }
+    removeAllPoseBindingsForTarget(ownerTargetId) {
+      for (const [poseName, bindingsForPose] of this.poseBindings) {
+        bindingsForPose.delete(ownerTargetId);
+        if (bindingsForPose.size === 0) this.poseBindings.delete(poseName);
+      }
+      this.detachPoseListenerIfUnused();
+    }
     removeAllBindingsForTarget(ownerTargetId) {
       this.removeAllKeyBindingsForTarget(ownerTargetId);
       this.touchBindings.delete(ownerTargetId);
       this.detachPointerListenerIfUnused();
+      this.removeAllPoseBindingsForTarget(ownerTargetId);
     }
     stopAllBindings() {
       this.keyBindings.clear();
       this.touchBindings.clear();
+      this.poseBindings.clear();
       this.detachKeyListenerIfUnused();
       this.detachPointerListenerIfUnused();
+      this.detachPoseListenerIfUnused();
     }
     attachKeyListenerIfNeeded() {
       if (this.keyListenerAttached || this.keyBindings.size === 0) return;
@@ -298,6 +373,16 @@
       if (!this.pointerListenerAttached || this.touchBindings.size > 0) return;
       this.runtime.renderer.canvas.removeEventListener("pointerdown", this.handlePointerDown);
       this.pointerListenerAttached = false;
+    }
+    attachPoseListenerIfNeeded() {
+      if (this.poseListenerAttached || this.poseBindings.size === 0) return;
+      this.runtime.on(ACCUMULATED_POSE_CHANGED_EVENT, this.handleAccumulatedPoseChanged);
+      this.poseListenerAttached = true;
+    }
+    detachPoseListenerIfUnused() {
+      if (!this.poseListenerAttached || this.poseBindings.size > 0) return;
+      this.runtime.off(ACCUMULATED_POSE_CHANGED_EVENT, this.handleAccumulatedPoseChanged);
+      this.poseListenerAttached = false;
     }
     registerRuntimeListeners() {
       if (this.runtimeListenersAttached) return;

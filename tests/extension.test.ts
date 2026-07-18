@@ -27,15 +27,16 @@ class FakeEventSource {
 describe('Async Input extension', () => {
   const windowEvents = new FakeEventSource();
   const canvasEvents = new FakeEventSource();
-  const runtimeListeners = new Map<string, Set<(target?: TurboWarpTarget) => void>>();
-  const runtimeOn = vi.fn((eventName: string, listener: (target?: TurboWarpTarget) => void) => {
+  const runtimeListeners = new Map<string, Set<(payload?: unknown) => void>>();
+  const runtimeOn = vi.fn((eventName: string, listener: (payload?: unknown) => void) => {
     const listeners = runtimeListeners.get(eventName) ?? new Set();
     listeners.add(listener);
     runtimeListeners.set(eventName, listeners);
   });
-  const runtimeOff = vi.fn((eventName: string, listener: (target?: TurboWarpTarget) => void) => {
+  const runtimeOff = vi.fn((eventName: string, listener: (payload?: unknown) => void) => {
     runtimeListeners.get(eventName)?.delete(listener);
   });
+  const supportsAccumulatedPoseEvents = vi.fn(() => true);
   const pick = vi.fn(() => 7);
   const runtimeValues = new Map<string, unknown>();
   const setRuntimeVariable = vi.fn(({VAR, STRING}: {VAR: string; STRING: unknown}) => {
@@ -72,6 +73,8 @@ describe('Async Input extension', () => {
     runtimeListeners.clear();
     runtimeOn.mockClear();
     runtimeOff.mockClear();
+    supportsAccumulatedPoseEvents.mockReset();
+    supportsAccumulatedPoseEvents.mockReturnValue(true);
     runtimeValues.clear();
     setRuntimeVariable.mockClear();
     pick.mockReset();
@@ -102,6 +105,7 @@ describe('Async Input extension', () => {
           renderer: {canvas, pick},
           targets: [stage, actor, clone],
           ext_lmsTempVars2: temporaryVariables,
+          ext_tmpose: {supportsAccumulatedPoseEvents},
           on: runtimeOn,
           off: runtimeOff
         }
@@ -122,8 +126,8 @@ describe('Async Input extension', () => {
     return {target};
   }
 
-  function emitRuntime(eventName: string, target?: TurboWarpTarget): void {
-    for (const listener of [...(runtimeListeners.get(eventName) ?? [])]) listener(target);
+  function emitRuntime(eventName: string, payload?: unknown): void {
+    for (const listener of [...(runtimeListeners.get(eventName) ?? [])]) listener(payload);
   }
 
   function keyEvent(overrides: Record<string, unknown> = {}): Record<string, unknown> {
@@ -149,7 +153,7 @@ describe('Async Input extension', () => {
     expect(FEATURE_FLAGS.asyncInput).toBe(false);
     expect(new AsyncInputExtension().getInfo().blocks).toEqual([]);
 
-    const mutableFlags = FEATURE_FLAGS as unknown as {asyncInput: boolean};
+    const mutableFlags = FEATURE_FLAGS as unknown as {asyncInput: boolean; poseInput: boolean};
     mutableFlags.asyncInput = true;
     try {
       expect(new AsyncInputExtension().getInfo().blocks.map((block) => block.opcode))
@@ -161,7 +165,21 @@ describe('Async Input extension', () => {
           'stopListeningForTouch',
           'stopAllInputListeners'
         ]);
+      mutableFlags.poseInput = true;
+      expect(new AsyncInputExtension().getInfo().blocks.map((block) => block.opcode))
+        .toEqual([
+          'listenForKey',
+          'stopListeningForKey',
+          'stopAllKeyListeners',
+          'listenForTouch',
+          'stopListeningForTouch',
+          'listenForPose',
+          'stopListeningForPose',
+          'stopAllPoseListeners',
+          'stopAllInputListeners'
+        ]);
     } finally {
+      mutableFlags.poseInput = false;
       mutableFlags.asyncInput = false;
     }
   });
@@ -265,6 +283,96 @@ describe('Async Input extension', () => {
     expect(runtimeValues.get('total')).toBe(16);
   });
 
+  it('allows multiple targets to own independent bindings for the same accumulated pose', () => {
+    const extension = new AsyncInputExtension();
+    extension.listenForPose(
+      {POSE_NAME: 'jump', RUNTIME_VAR: 'originalPose', VALUE: 'original'},
+      util(actor)
+    );
+    extension.listenForPose(
+      {POSE_NAME: 'jump', RUNTIME_VAR: 'clonePose', VALUE: 'clone'},
+      util(clone)
+    );
+    expect(runtimeListeners.get('TMPOSE_ACCUMULATED_POSE_CHANGED')?.size).toBe(1);
+
+    emitRuntime('TMPOSE_ACCUMULATED_POSE_CHANGED', {
+      version: 1,
+      poseName: 'jump',
+      previousPoseName: '',
+      score: 1.25,
+      reason: 'prediction',
+      timestamp: 100
+    });
+    expect(runtimeValues.get('originalPose')).toBe('original');
+    expect(runtimeValues.get('clonePose')).toBe('clone');
+  });
+
+  it('applies pose arithmetic and removes only the requested target binding', () => {
+    runtimeValues.set('total', 10);
+    const extension = new AsyncInputExtension();
+    extension.listenForPose(
+      {POSE_NAME: 'jump', RUNTIME_VAR: 'total', VALUE: '+2'},
+      util(actor)
+    );
+    extension.listenForPose(
+      {POSE_NAME: 'jump', RUNTIME_VAR: 'clonePose', VALUE: 'yes'},
+      util(clone)
+    );
+    extension.stopListeningForPose({POSE_NAME: 'jump'}, util(clone));
+
+    emitRuntime('TMPOSE_ACCUMULATED_POSE_CHANGED', {
+      version: 1,
+      poseName: 'jump',
+      previousPoseName: 'stand',
+      score: 2,
+      reason: 'prediction',
+      timestamp: 200
+    });
+    expect(runtimeValues.get('total')).toBe(12);
+    expect(runtimeValues.has('clonePose')).toBe(false);
+
+    extension.stopAllPoseListeners({}, util(actor));
+    expect(runtimeListeners.get('TMPOSE_ACCUMULATED_POSE_CHANGED')?.size).toBe(0);
+  });
+
+  it('validates TMPose capability and ignores invalid event payloads', () => {
+    supportsAccumulatedPoseEvents.mockReturnValue(false);
+    const unavailable = new AsyncInputExtension();
+    expect(() => unavailable.listenForPose(
+      {POSE_NAME: 'jump', RUNTIME_VAR: 'pose', VALUE: 'yes'},
+      util(actor)
+    )).toThrow('TMPose accumulated pose events are unavailable');
+    expect(runtimeListeners.get('TMPOSE_ACCUMULATED_POSE_CHANGED')?.size ?? 0).toBe(0);
+
+    supportsAccumulatedPoseEvents.mockReturnValue(true);
+    const extension = new AsyncInputExtension();
+    extension.listenForPose(
+      {POSE_NAME: 'jump', RUNTIME_VAR: 'pose', VALUE: 'yes'},
+      util(actor)
+    );
+    emitRuntime('TMPOSE_ACCUMULATED_POSE_CHANGED', {
+      version: 2,
+      poseName: 'jump'
+    });
+    emitRuntime('TMPOSE_ACCUMULATED_POSE_CHANGED', {
+      version: 1,
+      poseName: 'jump',
+      previousPoseName: 'jump',
+      score: 1,
+      reason: 'prediction',
+      timestamp: 250
+    });
+    emitRuntime('TMPOSE_ACCUMULATED_POSE_CHANGED', {
+      version: 1,
+      poseName: '',
+      previousPoseName: 'jump',
+      score: 0,
+      reason: 'reset',
+      timestamp: 300
+    });
+    expect(runtimeValues.has('pose')).toBe(false);
+  });
+
   it('rejects stage touch registration and ignores non-left or out-of-bounds input', () => {
     const extension = new AsyncInputExtension();
     expect(() => extension.listenForTouch(
@@ -331,13 +439,31 @@ describe('Async Input extension', () => {
     );
     extension.listenForTouch({RUNTIME_VAR: 'originalTouch', VALUE: 'yes'}, util(actor));
     extension.listenForTouch({RUNTIME_VAR: 'cloneTouch', VALUE: 'yes'}, util(clone));
+    extension.listenForPose(
+      {POSE_NAME: 'jump', RUNTIME_VAR: 'originalPose', VALUE: 'yes'},
+      util(actor)
+    );
+    extension.listenForPose(
+      {POSE_NAME: 'jump', RUNTIME_VAR: 'clonePose', VALUE: 'yes'},
+      util(clone)
+    );
 
     emitRuntime('targetWasRemoved', actor);
     windowEvents.emit('keydown', keyEvent());
     canvasEvents.emit('pointerdown', pointerEvent());
+    emitRuntime('TMPOSE_ACCUMULATED_POSE_CHANGED', {
+      version: 1,
+      poseName: 'jump',
+      previousPoseName: '',
+      score: 1,
+      reason: 'prediction',
+      timestamp: 100
+    });
     expect(runtimeValues.has('originalKey')).toBe(false);
     expect(runtimeValues.has('originalTouch')).toBe(false);
+    expect(runtimeValues.has('originalPose')).toBe(false);
     expect(runtimeValues.get('cloneKey')).toBe('yes');
+    expect(runtimeValues.get('clonePose')).toBe('yes');
 
     pick.mockReturnValue(8);
     canvasEvents.emit('pointerdown', pointerEvent());
@@ -351,16 +477,21 @@ describe('Async Input extension', () => {
       util(actor)
     );
     extension.listenForTouch({RUNTIME_VAR: 'touch', VALUE: 'yes'}, util(actor));
+    extension.listenForPose(
+      {POSE_NAME: 'jump', RUNTIME_VAR: 'pose', VALUE: 'yes'},
+      util(actor)
+    );
     emitRuntime('PROJECT_STOP_ALL');
     expect(windowEvents.listenerCount('keydown')).toBe(0);
     expect(canvasEvents.listenerCount('pointerdown')).toBe(0);
+    expect(runtimeListeners.get('TMPOSE_ACCUMULATED_POSE_CHANGED')?.size).toBe(0);
 
     extension.listenForKey(
       {KEY_ID: 'KeyA', RUNTIME_VAR: 'key', VALUE: 'again'},
       util(actor)
     );
     emitRuntime('RUNTIME_DISPOSED');
-    expect(runtimeOff).toHaveBeenCalledTimes(4);
+    expect(runtimeOff).toHaveBeenCalledTimes(5);
     expect(() => extension.listenForKey(
       {KEY_ID: 'KeyA', RUNTIME_VAR: 'key', VALUE: 'late'},
       util(actor)
