@@ -11,7 +11,7 @@
   var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
   var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   const extensionName = "Async Input";
-  const blocks = [{ "opcode": "listenForKey", "blockType": "COMMAND", "text": "listen for key [KEY_ID] set runtime var [RUNTIME_VAR] to [VALUE]", "description": "Registers or replaces a target-owned key binding.", "featureFlag": "asyncInput", "arguments": { "KEY_ID": { "type": "STRING", "defaultValue": "KeyA" }, "RUNTIME_VAR": { "type": "STRING", "defaultValue": "input" }, "VALUE": { "type": "STRING", "defaultValue": "pressed" } } }, { "opcode": "stopListeningForKey", "blockType": "COMMAND", "text": "stop listening for key [KEY_ID] for this target", "description": "Removes this target's binding for one physical key code.", "featureFlag": "asyncInput", "arguments": { "KEY_ID": { "type": "STRING", "defaultValue": "KeyA" } } }, { "opcode": "stopAllKeyListeners", "blockType": "COMMAND", "text": "stop all key listeners registered by this target", "description": "Removes every key binding owned by the current target.", "featureFlag": "asyncInput", "arguments": {} }, { "opcode": "listenForTouch", "blockType": "COMMAND", "text": "listen for touch on this sprite set runtime var [RUNTIME_VAR] to [VALUE]", "description": "Registers or replaces the current sprite or clone's pointer binding.", "featureFlag": "asyncInput", "arguments": { "RUNTIME_VAR": { "type": "STRING", "defaultValue": "input" }, "VALUE": { "type": "STRING", "defaultValue": "pressed" } } }, { "opcode": "stopListeningForTouch", "blockType": "COMMAND", "text": "stop listening for touch on this sprite", "description": "Removes the current target's pointer binding.", "featureFlag": "asyncInput", "arguments": {} }, { "opcode": "listenForPose", "blockType": "COMMAND", "text": "listen for accumulated pose [POSE_NAME] set runtime var [RUNTIME_VAR] to [VALUE]", "description": "Registers or replaces a target-owned accumulated pose binding.", "featureFlag": "poseInput", "arguments": { "POSE_NAME": { "type": "STRING", "defaultValue": "jump" }, "RUNTIME_VAR": { "type": "STRING", "defaultValue": "input" }, "VALUE": { "type": "STRING", "defaultValue": "detected" } } }, { "opcode": "stopListeningForPose", "blockType": "COMMAND", "text": "stop listening for accumulated pose [POSE_NAME] for this target", "description": "Removes this target's binding for one accumulated pose name.", "featureFlag": "poseInput", "arguments": { "POSE_NAME": { "type": "STRING", "defaultValue": "jump" } } }, { "opcode": "stopAllPoseListeners", "blockType": "COMMAND", "text": "stop all pose listeners registered by this target", "description": "Removes every accumulated pose binding owned by the current target.", "featureFlag": "poseInput", "arguments": {} }, { "opcode": "stopAllInputListeners", "blockType": "COMMAND", "text": "stop all input listeners registered by this target", "description": "Removes every key, pointer, and accumulated pose binding owned by the current target.", "featureFlag": "asyncInput", "arguments": {} }];
+  const blocks = [{ "opcode": "listenForKey", "blockType": "COMMAND", "text": "listen for key [KEY_ID] set runtime var [RUNTIME_VAR] to [VALUE]", "description": "Registers or replaces a target-owned key binding.", "featureFlag": "asyncInput", "arguments": { "KEY_ID": { "type": "STRING", "defaultValue": "KeyA" }, "RUNTIME_VAR": { "type": "STRING", "defaultValue": "input" }, "VALUE": { "type": "STRING", "defaultValue": "pressed" } } }, { "opcode": "listenForKeyAndBroadcast", "blockType": "COMMAND", "text": "listen for key [KEY_ID] set runtime var [RUNTIME_VAR] to [VALUE] and broadcast [MESSAGE]", "description": "Registers or replaces a target-owned key binding that broadcasts after updating the runtime variable.", "featureFlag": "asyncInput", "arguments": { "KEY_ID": { "type": "STRING", "defaultValue": "KeyA" }, "RUNTIME_VAR": { "type": "STRING", "defaultValue": "input" }, "VALUE": { "type": "STRING", "defaultValue": "pressed" }, "MESSAGE": { "type": "STRING", "defaultValue": "message1" } } }, { "opcode": "stopListeningForKey", "blockType": "COMMAND", "text": "stop listening for key [KEY_ID] for this target", "description": "Removes this target's binding for one physical key code.", "featureFlag": "asyncInput", "arguments": { "KEY_ID": { "type": "STRING", "defaultValue": "KeyA" } } }, { "opcode": "stopAllKeyListeners", "blockType": "COMMAND", "text": "stop all key listeners registered by this target", "description": "Removes every key binding owned by the current target.", "featureFlag": "asyncInput", "arguments": {} }, { "opcode": "listenForTouch", "blockType": "COMMAND", "text": "listen for touch on this sprite set runtime var [RUNTIME_VAR] to [VALUE]", "description": "Registers or replaces the current sprite or clone's pointer binding.", "featureFlag": "asyncInput", "arguments": { "RUNTIME_VAR": { "type": "STRING", "defaultValue": "input" }, "VALUE": { "type": "STRING", "defaultValue": "pressed" } } }, { "opcode": "listenForTouchAndBroadcast", "blockType": "COMMAND", "text": "listen for touch on this sprite set runtime var [RUNTIME_VAR] to [VALUE] and broadcast [MESSAGE]", "description": "Registers or replaces the current sprite or clone's pointer binding that broadcasts after updating the runtime variable.", "featureFlag": "asyncInput", "arguments": { "RUNTIME_VAR": { "type": "STRING", "defaultValue": "input" }, "VALUE": { "type": "STRING", "defaultValue": "pressed" }, "MESSAGE": { "type": "STRING", "defaultValue": "message1" } } }, { "opcode": "stopListeningForTouch", "blockType": "COMMAND", "text": "stop listening for touch on this sprite", "description": "Removes the current target's pointer binding.", "featureFlag": "asyncInput", "arguments": {} }, { "opcode": "listenForPose", "blockType": "COMMAND", "text": "listen for accumulated pose [POSE_NAME] set runtime var [RUNTIME_VAR] to [VALUE]", "description": "Registers or replaces a target-owned accumulated pose binding.", "featureFlag": "poseInput", "arguments": { "POSE_NAME": { "type": "STRING", "defaultValue": "jump" }, "RUNTIME_VAR": { "type": "STRING", "defaultValue": "input" }, "VALUE": { "type": "STRING", "defaultValue": "detected" } } }, { "opcode": "stopListeningForPose", "blockType": "COMMAND", "text": "stop listening for accumulated pose [POSE_NAME] for this target", "description": "Removes this target's binding for one accumulated pose name.", "featureFlag": "poseInput", "arguments": { "POSE_NAME": { "type": "STRING", "defaultValue": "jump" } } }, { "opcode": "stopAllPoseListeners", "blockType": "COMMAND", "text": "stop all pose listeners registered by this target", "description": "Removes every accumulated pose binding owned by the current target.", "featureFlag": "poseInput", "arguments": {} }, { "opcode": "stopAllInputListeners", "blockType": "COMMAND", "text": "stop all input listeners registered by this target", "description": "Removes every key, pointer, and accumulated pose binding owned by the current target.", "featureFlag": "asyncInput", "arguments": {} }];
   const definitions = {
     extensionName,
     blocks
@@ -158,16 +158,25 @@
       };
     }
     listenForKey(args, util) {
+      this.registerKeyBinding(args, util, false);
+    }
+    listenForKeyAndBroadcast(args, util) {
+      this.registerKeyBinding(args, util, true);
+    }
+    registerKeyBinding(args, util, shouldBroadcast) {
       this.requireActiveRuntime();
       const owner = this.requireTarget(util);
       const keyId = normalizeName(args.KEY_ID);
       const runtimeVariable = normalizeName(args.RUNTIME_VAR);
       const value = String(args.VALUE ?? "");
+      const broadcastMessage = shouldBroadcast ? normalizeName(args.MESSAGE) : null;
       if (!keyId) throw new Error("KEY_ID must be specified.");
       if (!runtimeVariable) throw new Error("RUNTIME_VAR must be specified.");
+      if (shouldBroadcast && !broadcastMessage) throw new Error("MESSAGE must be specified.");
       requireRuntimeVariables(this.runtime);
       const binding = {
         ownerTargetId: owner.id,
+        broadcastMessage,
         ...parseRuntimeBinding(runtimeVariable, value)
       };
       const bindingsForKey = this.keyBindings.get(keyId) ?? /* @__PURE__ */ new Map();
@@ -189,14 +198,23 @@
       this.removeAllKeyBindingsForTarget(owner.id);
     }
     listenForTouch(args, util) {
+      this.registerTouchBinding(args, util, false);
+    }
+    listenForTouchAndBroadcast(args, util) {
+      this.registerTouchBinding(args, util, true);
+    }
+    registerTouchBinding(args, util, shouldBroadcast) {
       this.requireActiveRuntime();
       const owner = this.requireSpriteTarget(util);
       const runtimeVariable = normalizeName(args.RUNTIME_VAR);
       const value = String(args.VALUE ?? "");
+      const broadcastMessage = shouldBroadcast ? normalizeName(args.MESSAGE) : null;
       if (!runtimeVariable) throw new Error("RUNTIME_VAR must be specified.");
+      if (shouldBroadcast && !broadcastMessage) throw new Error("MESSAGE must be specified.");
       requireRuntimeVariables(this.runtime);
       this.touchBindings.set(owner.id, {
         ownerTargetId: owner.id,
+        broadcastMessage,
         ...parseRuntimeBinding(runtimeVariable, value)
       });
       this.runtimeDependencyFailureReported = false;
@@ -220,6 +238,7 @@
       this.requireAccumulatedPoseEvents();
       const binding = {
         ownerTargetId: owner.id,
+        broadcastMessage: null,
         ...parseRuntimeBinding(runtimeVariable, value)
       };
       const bindingsForPose = this.poseBindings.get(poseName) ?? /* @__PURE__ */ new Map();
@@ -284,6 +303,16 @@
         writeRuntimeVariable(runtimeVariables, binding.runtimeVariable, value);
       } catch (error) {
         console.error("Async input binding update failed.", error);
+        return true;
+      }
+      if (binding.broadcastMessage !== null) {
+        try {
+          this.runtime.startHats("event_whenbroadcastreceived", {
+            BROADCAST_OPTION: binding.broadcastMessage
+          });
+        } catch (error) {
+          console.error("Async input binding broadcast failed.", error);
+        }
       }
       return true;
     }

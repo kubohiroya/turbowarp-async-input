@@ -14,6 +14,17 @@ The distributed build enables key and touch blocks through the compile-time `asy
 flag in `config/feature-flags.ts`. Pose blocks additionally require the independently reversible
 `poseInput` feature flag, which remains OFF by default.
 
+## Runtime variable initialization
+
+Listen blocks only register or replace input bindings. Registering or removing a listener does not
+create, clear, or otherwise initialize its runtime variable. Initialize the variable explicitly
+with Temporary Variables before registering listeners whenever the project requires a predictable
+starting state. Use an empty string for an initially unset input value, or a finite number such as
+`0` before using `+`, `-`, `*`, or `/` compound assignment.
+
+Initialize a shared runtime variable once before registering all targets that write to it. This
+avoids one target's registration resetting values already used by another target.
+
 ## Target ownership
 
 Every binding belongs to the sprite, clone, or stage that executes the registration block. Key bindings are identified by the current target ID and `KeyboardEvent.code`. Touch bindings are identified by the current sprite or clone target ID. Two clones of the same sprite can therefore register independent bindings.
@@ -31,6 +42,14 @@ Repeated keydown events, IME composition, and events from input, textarea, selec
 ## Touch input
 
 The touch registration block always refers to the sprite or clone that executes it. Stage targets are rejected. The renderer's topmost pick result is matched by target ID, so original sprites and clones remain distinct and transparent pixels follow TurboWarp renderer behavior.
+
+## Broadcast after input
+
+The key and touch `and broadcast` variants update the runtime variable first, then start the
+matching standard Scratch broadcast without waiting for its receiver scripts to finish. The
+message name is trimmed and must not be empty. If the runtime variable update fails, including an
+invalid compound arithmetic update, the broadcast is not started. Each matching target-owned key
+binding starts its own configured broadcast.
 
 ## Accumulated pose input
 
@@ -94,6 +113,20 @@ Registers or replaces a target-owned key binding.
 | `RUNTIME_VAR` | String, default: `input` |
 | `VALUE` | String, default: `pressed` |
 
+### `listen for key [KEY_ID] set runtime var [RUNTIME_VAR] to [VALUE] and broadcast [MESSAGE]`
+
+Registers or replaces a target-owned key binding that broadcasts after updating the runtime variable.
+
+| Property | Value |
+|---|---|
+| Type | Command |
+| Opcode | `listenForKeyAndBroadcast` |
+| Feature flag | `asyncInput` |
+| `KEY_ID` | String, default: `KeyA` |
+| `RUNTIME_VAR` | String, default: `input` |
+| `VALUE` | String, default: `pressed` |
+| `MESSAGE` | String, default: `message1` |
+
 ### `stop listening for key [KEY_ID] for this target`
 
 Removes this target's binding for one physical key code.
@@ -126,6 +159,19 @@ Registers or replaces the current sprite or clone's pointer binding.
 | Feature flag | `asyncInput` |
 | `RUNTIME_VAR` | String, default: `input` |
 | `VALUE` | String, default: `pressed` |
+
+### `listen for touch on this sprite set runtime var [RUNTIME_VAR] to [VALUE] and broadcast [MESSAGE]`
+
+Registers or replaces the current sprite or clone's pointer binding that broadcasts after updating the runtime variable.
+
+| Property | Value |
+|---|---|
+| Type | Command |
+| Opcode | `listenForTouchAndBroadcast` |
+| Feature flag | `asyncInput` |
+| `RUNTIME_VAR` | String, default: `input` |
+| `VALUE` | String, default: `pressed` |
+| `MESSAGE` | String, default: `message1` |
 
 ### `stop listening for touch on this sprite`
 

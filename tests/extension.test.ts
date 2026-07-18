@@ -36,10 +36,16 @@ describe('Async Input extension', () => {
   const runtimeOff = vi.fn((eventName: string, listener: (payload?: unknown) => void) => {
     runtimeListeners.get(eventName)?.delete(listener);
   });
+  const sideEffects: string[] = [];
+  const startHats = vi.fn(() => {
+    sideEffects.push('broadcast');
+    return [];
+  });
   const supportsAccumulatedPoseEvents = vi.fn(() => true);
   const pick = vi.fn(() => 7);
   const runtimeValues = new Map<string, unknown>();
   const setRuntimeVariable = vi.fn(({VAR, STRING}: {VAR: string; STRING: unknown}) => {
+    sideEffects.push('write');
     runtimeValues.set(VAR, STRING);
   });
   const temporaryVariables: TemporaryVariablesExtension = {
@@ -73,6 +79,8 @@ describe('Async Input extension', () => {
     runtimeListeners.clear();
     runtimeOn.mockClear();
     runtimeOff.mockClear();
+    sideEffects.length = 0;
+    startHats.mockClear();
     supportsAccumulatedPoseEvents.mockReset();
     supportsAccumulatedPoseEvents.mockReturnValue(true);
     runtimeValues.clear();
@@ -107,7 +115,8 @@ describe('Async Input extension', () => {
           ext_lmsTempVars2: temporaryVariables,
           ext_tmpose: {supportsAccumulatedPoseEvents},
           on: runtimeOn,
-          off: runtimeOff
+          off: runtimeOff,
+          startHats
         }
       },
       extensions: {unsandboxed: true, register: vi.fn()},
@@ -155,9 +164,11 @@ describe('Async Input extension', () => {
     expect(new AsyncInputExtension().getInfo().blocks.map((block) => block.opcode))
       .toEqual([
         'listenForKey',
+        'listenForKeyAndBroadcast',
         'stopListeningForKey',
         'stopAllKeyListeners',
         'listenForTouch',
+        'listenForTouchAndBroadcast',
         'stopListeningForTouch',
         'stopAllInputListeners'
       ]);
@@ -167,9 +178,11 @@ describe('Async Input extension', () => {
       poseInput: true
     }).getInfo().blocks.map((block) => block.opcode)).toEqual([
       'listenForKey',
+      'listenForKeyAndBroadcast',
       'stopListeningForKey',
       'stopAllKeyListeners',
       'listenForTouch',
+      'listenForTouchAndBroadcast',
       'stopListeningForTouch',
       'listenForPose',
       'stopListeningForPose',
@@ -181,6 +194,31 @@ describe('Async Input extension', () => {
       asyncInput: false,
       poseInput: true
     }).getInfo().blocks).toEqual([]);
+  });
+
+  it('does not initialize runtime variables while registering listeners', () => {
+    runtimeValues.set('keyState', 'existing-key');
+    runtimeValues.set('touchState', 'existing-touch');
+    runtimeValues.set('poseState', 'existing-pose');
+    const extension = new AsyncInputExtension();
+
+    extension.listenForKey(
+      {KEY_ID: 'KeyA', RUNTIME_VAR: 'keyState', VALUE: 'pressed'},
+      util(actor)
+    );
+    extension.listenForTouch(
+      {RUNTIME_VAR: 'touchState', VALUE: 'touched'},
+      util(actor)
+    );
+    extension.listenForPose(
+      {POSE_NAME: 'jump', RUNTIME_VAR: 'poseState', VALUE: 'detected'},
+      util(actor)
+    );
+
+    expect(runtimeValues.get('keyState')).toBe('existing-key');
+    expect(runtimeValues.get('touchState')).toBe('existing-touch');
+    expect(runtimeValues.get('poseState')).toBe('existing-pose');
+    expect(setRuntimeVariable).not.toHaveBeenCalled();
   });
 
   it('allows multiple targets to own independent bindings for the same key', () => {
@@ -198,6 +236,32 @@ describe('Async Input extension', () => {
     windowEvents.emit('keydown', keyEvent());
     expect(runtimeValues.get('originalState')).toBe('original');
     expect(runtimeValues.get('cloneState')).toBe('clone');
+    expect(startHats).not.toHaveBeenCalled();
+  });
+
+  it('keeps the runtime value at registration and broadcasts after a key update', () => {
+    runtimeValues.set('state', 'existing');
+    const extension = new AsyncInputExtension();
+    extension.listenForKeyAndBroadcast(
+      {
+        KEY_ID: 'KeyA',
+        RUNTIME_VAR: 'state',
+        VALUE: 'pressed',
+        MESSAGE: '  key pressed  '
+      },
+      util(actor)
+    );
+    expect(runtimeValues.get('state')).toBe('existing');
+    expect(setRuntimeVariable).not.toHaveBeenCalled();
+    expect(startHats).not.toHaveBeenCalled();
+
+    windowEvents.emit('keydown', keyEvent());
+    expect(runtimeValues.get('state')).toBe('pressed');
+    expect(startHats).toHaveBeenCalledOnce();
+    expect(startHats).toHaveBeenCalledWith('event_whenbroadcastreceived', {
+      BROADCAST_OPTION: 'key pressed'
+    });
+    expect(sideEffects).toEqual(['write', 'broadcast']);
   });
 
   it('replaces and removes only the current target key binding', () => {
@@ -271,6 +335,31 @@ describe('Async Input extension', () => {
     pick.mockReturnValue(8);
     canvasEvents.emit('pointerdown', pointerEvent());
     expect(runtimeValues.get('cloneTouch')).toBe('clone');
+    expect(startHats).not.toHaveBeenCalled();
+  });
+
+  it('keeps the runtime value at registration and broadcasts after a touch update', () => {
+    runtimeValues.set('touch', 'existing');
+    const extension = new AsyncInputExtension();
+    extension.listenForTouchAndBroadcast(
+      {
+        RUNTIME_VAR: 'touch',
+        VALUE: 'touched',
+        MESSAGE: 'sprite touched'
+      },
+      util(actor)
+    );
+    expect(runtimeValues.get('touch')).toBe('existing');
+    expect(setRuntimeVariable).not.toHaveBeenCalled();
+    expect(startHats).not.toHaveBeenCalled();
+
+    canvasEvents.emit('pointerdown', pointerEvent());
+    expect(runtimeValues.get('touch')).toBe('touched');
+    expect(startHats).toHaveBeenCalledOnce();
+    expect(startHats).toHaveBeenCalledWith('event_whenbroadcastreceived', {
+      BROADCAST_OPTION: 'sprite touched'
+    });
+    expect(sideEffects).toEqual(['write', 'broadcast']);
   });
 
   it('applies touch arithmetic to the latest value', () => {
@@ -409,21 +498,22 @@ describe('Async Input extension', () => {
     const error = vi.spyOn(console, 'error').mockImplementation(() => {});
     runtimeValues.set('total', 'not-a-number');
     const extension = new AsyncInputExtension();
-    extension.listenForKey(
-      {KEY_ID: 'KeyA', RUNTIME_VAR: 'total', VALUE: '+1'},
+    extension.listenForKeyAndBroadcast(
+      {KEY_ID: 'KeyA', RUNTIME_VAR: 'total', VALUE: '+1', MESSAGE: 'updated'},
       util(actor)
     );
     windowEvents.emit('keydown', keyEvent());
     expect(runtimeValues.get('total')).toBe('not-a-number');
 
     runtimeValues.set('total', 10);
-    extension.listenForKey(
-      {KEY_ID: 'KeyA', RUNTIME_VAR: 'total', VALUE: '/0'},
+    extension.listenForKeyAndBroadcast(
+      {KEY_ID: 'KeyA', RUNTIME_VAR: 'total', VALUE: '/0', MESSAGE: 'updated'},
       util(actor)
     );
     windowEvents.emit('keydown', keyEvent());
     expect(runtimeValues.get('total')).toBe(10);
     expect(error).toHaveBeenCalledTimes(2);
+    expect(startHats).not.toHaveBeenCalled();
   });
 
   it('removes only the deleted target bindings', () => {
@@ -524,6 +614,14 @@ describe('Async Input extension', () => {
       {RUNTIME_VAR: '', VALUE: 'ready'},
       util(actor)
     )).toThrow('RUNTIME_VAR');
+    expect(() => extension.listenForKeyAndBroadcast(
+      {KEY_ID: 'KeyA', RUNTIME_VAR: 'state', VALUE: 'ready', MESSAGE: '   '},
+      util(actor)
+    )).toThrow('MESSAGE');
+    expect(() => extension.listenForTouchAndBroadcast(
+      {RUNTIME_VAR: 'state', VALUE: 'ready', MESSAGE: ''},
+      util(actor)
+    )).toThrow('MESSAGE');
   });
 });
 

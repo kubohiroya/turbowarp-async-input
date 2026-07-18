@@ -7,7 +7,7 @@ import {
 } from './runtime-variables.js';
 
 export const EXTENSION_ID = 'twAsyncInput';
-export const EXTENSION_VERSION = '2026-07-18-accumulated-pose-input-v1';
+export const EXTENSION_VERSION = '2026-07-18-key-touch-broadcast-v1';
 export const ACCUMULATED_POSE_CHANGED_EVENT = 'TMPOSE_ACCUMULATED_POSE_CHANGED';
 
 type BlockArgs = Record<string, unknown>;
@@ -27,7 +27,10 @@ interface ArithmeticRuntimeBinding {
 }
 
 type RuntimeBinding = SetRuntimeBinding | ArithmeticRuntimeBinding;
-type OwnedBinding = RuntimeBinding & {ownerTargetId: string};
+type OwnedBinding = RuntimeBinding & {
+  ownerTargetId: string;
+  broadcastMessage: string | null;
+};
 
 interface AccumulatedPoseChangedEventV1 {
   version: 1;
@@ -159,17 +162,32 @@ export class AsyncInputExtension {
   }
 
   listenForKey(args: BlockArgs, util: ScratchBlockUtility): void {
+    this.registerKeyBinding(args, util, false);
+  }
+
+  listenForKeyAndBroadcast(args: BlockArgs, util: ScratchBlockUtility): void {
+    this.registerKeyBinding(args, util, true);
+  }
+
+  private registerKeyBinding(
+    args: BlockArgs,
+    util: ScratchBlockUtility,
+    shouldBroadcast: boolean
+  ): void {
     this.requireActiveRuntime();
     const owner = this.requireTarget(util);
     const keyId = normalizeName(args.KEY_ID);
     const runtimeVariable = normalizeName(args.RUNTIME_VAR);
     const value = String(args.VALUE ?? '');
+    const broadcastMessage = shouldBroadcast ? normalizeName(args.MESSAGE) : null;
     if (!keyId) throw new Error('KEY_ID must be specified.');
     if (!runtimeVariable) throw new Error('RUNTIME_VAR must be specified.');
+    if (shouldBroadcast && !broadcastMessage) throw new Error('MESSAGE must be specified.');
 
     requireRuntimeVariables(this.runtime);
     const binding = {
       ownerTargetId: owner.id,
+      broadcastMessage,
       ...parseRuntimeBinding(runtimeVariable, value)
     };
     const bindingsForKey = this.keyBindings.get(keyId) ?? new Map<string, OwnedBinding>();
@@ -194,15 +212,30 @@ export class AsyncInputExtension {
   }
 
   listenForTouch(args: BlockArgs, util: ScratchBlockUtility): void {
+    this.registerTouchBinding(args, util, false);
+  }
+
+  listenForTouchAndBroadcast(args: BlockArgs, util: ScratchBlockUtility): void {
+    this.registerTouchBinding(args, util, true);
+  }
+
+  private registerTouchBinding(
+    args: BlockArgs,
+    util: ScratchBlockUtility,
+    shouldBroadcast: boolean
+  ): void {
     this.requireActiveRuntime();
     const owner = this.requireSpriteTarget(util);
     const runtimeVariable = normalizeName(args.RUNTIME_VAR);
     const value = String(args.VALUE ?? '');
+    const broadcastMessage = shouldBroadcast ? normalizeName(args.MESSAGE) : null;
     if (!runtimeVariable) throw new Error('RUNTIME_VAR must be specified.');
+    if (shouldBroadcast && !broadcastMessage) throw new Error('MESSAGE must be specified.');
 
     requireRuntimeVariables(this.runtime);
     this.touchBindings.set(owner.id, {
       ownerTargetId: owner.id,
+      broadcastMessage,
       ...parseRuntimeBinding(runtimeVariable, value)
     });
     this.runtimeDependencyFailureReported = false;
@@ -229,6 +262,7 @@ export class AsyncInputExtension {
     this.requireAccumulatedPoseEvents();
     const binding = {
       ownerTargetId: owner.id,
+      broadcastMessage: null,
       ...parseRuntimeBinding(runtimeVariable, value)
     };
     const bindingsForPose = this.poseBindings.get(poseName) ?? new Map<string, OwnedBinding>();
@@ -336,7 +370,7 @@ export class AsyncInputExtension {
     return extension;
   }
 
-  private writeFromBackgroundEvent(binding: RuntimeBinding): boolean {
+  private writeFromBackgroundEvent(binding: OwnedBinding): boolean {
     let runtimeVariables: TemporaryVariablesExtension;
     try {
       runtimeVariables = requireRuntimeVariables(this.runtime);
@@ -356,6 +390,17 @@ export class AsyncInputExtension {
       writeRuntimeVariable(runtimeVariables, binding.runtimeVariable, value);
     } catch (error) {
       console.error('Async input binding update failed.', error);
+      return true;
+    }
+
+    if (binding.broadcastMessage !== null) {
+      try {
+        this.runtime.startHats('event_whenbroadcastreceived', {
+          BROADCAST_OPTION: binding.broadcastMessage
+        });
+      } catch (error) {
+        console.error('Async input binding broadcast failed.', error);
+      }
     }
     return true;
   }
