@@ -7,6 +7,7 @@ interface TurboWarpTarget {
   id: string;
   isStage: boolean;
   drawableID: number | null;
+  lookupVariableByNameAndType?(name: string, type: string): {value: unknown} | null;
 }
 
 interface TemporaryVariablesExtension {
