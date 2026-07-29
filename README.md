@@ -16,10 +16,9 @@ flag in `config/feature-flags.ts`. Pose blocks additionally require the independ
 
 ## Extension ID compatibility
 
-The current extension ID remains `twAsyncInput` for compatibility with projects that already
-store its opcodes. A future standards-compliant ID is planned as
-`kubohiroyaasyncinput`. That change must be released together with a schema-aware project
-migration; replacing the ID in this repository alone would break existing blocks.
+This migration release uses the standards-compliant ID `kubohiroyaasyncinput`. Existing projects
+that store `twAsyncInput` opcodes must apply a schema-aware project migration at the same time;
+replacing the JavaScript artifact alone would break their existing blocks.
 
 ## Runtime variable initialization
 
