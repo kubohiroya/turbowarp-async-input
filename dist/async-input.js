@@ -1,5 +1,5 @@
 // Name: Async Input
-// ID: twAsyncInput
+// ID: kubohiroyaasyncinput
 // Description: Bind keyboard and current-sprite pointer input to Temporary Variables runtime variables.
 // By: Hiroya Kubo
 // License: MPL-2.0
@@ -35,7 +35,7 @@
   function writeRuntimeVariable(extension, name, value) {
     extension.setRuntimeVariable({ VAR: name, STRING: value });
   }
-  const EXTENSION_ID = "twAsyncInput";
+  const EXTENSION_ID = "kubohiroyaasyncinput";
   const ACCUMULATED_POSE_CHANGED_EVENT = "TMPOSE_ACCUMULATED_POSE_CHANGED";
   const ARITHMETIC_OPERATORS = /* @__PURE__ */ new Set(["+", "-", "*", "/"]);
   const POSE_CHANGE_REASONS = /* @__PURE__ */ new Set(["prediction", "reset", "stop"]);

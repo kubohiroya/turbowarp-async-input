@@ -6,7 +6,7 @@ import {
   writeRuntimeVariable
 } from './runtime-variables.js';
 
-export const EXTENSION_ID = 'twAsyncInput';
+export const EXTENSION_ID = 'kubohiroyaasyncinput';
 export const EXTENSION_VERSION = '2026-07-18-key-touch-broadcast-v1';
 export const ACCUMULATED_POSE_CHANGED_EVENT = 'TMPOSE_ACCUMULATED_POSE_CHANGED';
 
