@@ -1,8 +1,35 @@
 {
   "name": "@kubohiroya/turbowarp-async-input",
   "version": "0.1.0",
+  "description": "A target-scoped asynchronous keyboard, pointer, and accumulated pose input extension for TurboWarp.",
   "author": "Hiroya Kubo <hiroya@cuc.ac.jp>",
+  "license": "MPL-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kubohiroya/turbowarp-async-input.git"
+  },
+  "homepage": "https://github.com/kubohiroya/turbowarp-async-input#readme",
+  "bugs": {
+    "url": "https://github.com/kubohiroya/turbowarp-async-input/issues"
+  },
+  "keywords": [
+    "turbowarp",
+    "scratch",
+    "extension",
+    "keyboard",
+    "pointer",
+    "pose"
+  ],
   "type": "module",
+  "files": [
+    "dist/"
+  ],
+  "exports": {
+    "./async-input.js": "./dist/async-input.js"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "dev": "vite build --watch",
     "typecheck": "tsc --noEmit",
@@ -11,7 +38,8 @@
     "docs": "node scripts/generate-readme.mjs",
     "docs:check": "npm run docs && git diff --exit-code -- README.md",
     "check:dist": "npm run build && git diff --exit-code -- dist",
-    "check": "npm run typecheck && npm run test && npm run build && npm run docs:check && npm run check:dist"
+    "check": "npm run typecheck && npm run test && npm run build && npm run docs:check && npm run check:dist",
+    "prepack": "npm run check"
   },
   "devDependencies": {
     "@kubohiroya/vite-plugin-turbowarp-extension": "0.1.0",
