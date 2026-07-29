@@ -10,9 +10,28 @@ Desktop with **Run extension without sandbox** enabled. Load TurboWarp's **Tempo
 extension before registering input. Pose input also requires TMPose with its accumulated pose
 scoring and change event features enabled.
 
+The versioned npm package contains the reviewed build:
+
+```bash
+pnpm add --save-exact @kubohiroya/turbowarp-async-input@0.1.0
+```
+
+Load `node_modules/@kubohiroya/turbowarp-async-input/dist/async-input.js`, or use the
+version-pinned CDN URL:
+
+```text
+https://cdn.jsdelivr.net/npm/@kubohiroya/turbowarp-async-input@0.1.0/dist/async-input.js
+```
+
 The distributed build enables key and touch blocks through the compile-time `asyncInput` feature
 flag in `config/feature-flags.ts`. Pose blocks additionally require the independently reversible
 `poseInput` feature flag, which remains OFF by default.
+
+## Extension ID compatibility
+
+This migration release uses the standards-compliant ID `kubohiroyaasyncinput`. Existing projects
+that store `twAsyncInput` opcodes must apply a schema-aware project migration at the same time;
+replacing the JavaScript artifact alone would break their existing blocks.
 
 ## Runtime variable initialization
 
@@ -27,7 +46,7 @@ avoids one target's registration resetting values already used by another target
 
 ## Target ownership
 
-Every binding belongs to the sprite, clone, or stage that executes the registration block. Key bindings are identified by the current target ID and `KeyboardEvent.code`. Touch bindings are identified by the current sprite or clone target ID. Two clones of the same sprite can therefore register independent bindings.
+Every binding belongs to the sprite, clone, or stage that executes the registration block. Key bindings are identified by the current target ID and `KeyboardEvent.code`. Ordinary touch bindings are identified by the current sprite or clone target ID. The actor-touch compatibility block keeps the executing target as owner while binding the pointer hit to the resolved actor target. Two clones of the same sprite can therefore register independent bindings.
 
 The extension uses one window `keydown` listener, one renderer-canvas `pointerdown` listener, and
 one TMPose runtime-event listener regardless of the number of bindings. Target deletion removes
@@ -41,7 +60,9 @@ Repeated keydown events, IME composition, and events from input, textarea, selec
 
 ## Touch input
 
-The touch registration block always refers to the sprite or clone that executes it. Stage targets are rejected. The renderer's topmost pick result is matched by target ID, so original sprites and clones remain distinct and transparent pixels follow TurboWarp renderer behavior.
+The ordinary touch registration block always refers to the sprite or clone that executes it. Stage targets are rejected. The renderer's topmost pick result is matched by target ID, so original sprites and clones remain distinct and transparent pixels follow TurboWarp renderer behavior.
+
+For kamishibai DSL integration, `listenForActorTouchAndBroadcast` resolves a non-stage target whose `actorName` variable exactly matches the supplied actor name. Missing and duplicate actor names are rejected. This compatibility block is maintained outside the generated public block reference.
 
 ## Broadcast after input
 
@@ -77,13 +98,13 @@ Operands must be finite numbers. Missing or non-numeric current values, division
 
 ## DSL integration
 
-Actor names belong to the DSL routing layer rather than this extension's block API. For example:
+Actor-aware touch routing can use the compatibility block directly. For example:
 
 ```text
 action=touchInput:a1,a2:v1,v1:+2,+5
 ```
 
-must execute `listen for touch on this sprite...` once in a1's target context and once in a2's target context. The extension stores only the resulting target IDs.
+can register each actor by its `actorName` value while preserving the executing target as the binding owner. Removing either the actor target or the owning target removes the corresponding touch binding.
 
 Pose routing follows the same pattern:
 

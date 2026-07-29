@@ -1,5 +1,5 @@
 // Name: Async Input
-// ID: twAsyncInput
+// ID: kubohiroyaasyncinput
 // Description: Bind keyboard and current-sprite pointer input to Temporary Variables runtime variables.
 // By: Hiroya Kubo
 // License: MPL-2.0
@@ -35,11 +35,24 @@
   function writeRuntimeVariable(extension, name, value) {
     extension.setRuntimeVariable({ VAR: name, STRING: value });
   }
-  const EXTENSION_ID = "twAsyncInput";
+  const EXTENSION_ID = "kubohiroyaasyncinput";
   const ACCUMULATED_POSE_CHANGED_EVENT = "TMPOSE_ACCUMULATED_POSE_CHANGED";
   const ARITHMETIC_OPERATORS = /* @__PURE__ */ new Set(["+", "-", "*", "/"]);
   const POSE_CHANGE_REASONS = /* @__PURE__ */ new Set(["prediction", "reset", "stop"]);
   const blockDefinitions = definitions.blocks;
+  const internalBlockDefinitions = [{
+    opcode: "listenForActorTouchAndBroadcast",
+    blockType: "COMMAND",
+    text: "listen for touch on actor [ACTOR] set runtime var [RUNTIME_VAR] to [VALUE] and broadcast [MESSAGE]",
+    description: "Registers or replaces a pointer binding for a named kamishibai actor.",
+    featureFlag: "asyncInput",
+    arguments: {
+      ACTOR: { type: "STRING", defaultValue: "Actor1" },
+      RUNTIME_VAR: { type: "STRING", defaultValue: "input" },
+      VALUE: { type: "STRING", defaultValue: "pressed" },
+      MESSAGE: { type: "STRING", defaultValue: "message1" }
+    }
+  }];
   function normalizeName(value) {
     return String(value ?? "").trim();
   }
@@ -139,7 +152,7 @@
         color1: "#2f9d8f",
         color2: "#247c72",
         color3: "#185b54",
-        blocks: blockDefinitions.filter(
+        blocks: [...blockDefinitions, ...internalBlockDefinitions].filter(
           (block) => this.featureFlags.asyncInput && (!block.featureFlag || this.featureFlags[block.featureFlag])
         ).map((block) => ({
           opcode: block.opcode,
@@ -203,16 +216,25 @@
     listenForTouchAndBroadcast(args, util) {
       this.registerTouchBinding(args, util, true);
     }
+    listenForActorTouchAndBroadcast(args, util) {
+      this.requireActiveRuntime();
+      const owner = this.requireTarget(util);
+      const target = this.resolveActorTarget(args.ACTOR);
+      this.registerTouchBindingForTarget(args, owner, target, true);
+    }
     registerTouchBinding(args, util, shouldBroadcast) {
       this.requireActiveRuntime();
       const owner = this.requireSpriteTarget(util);
+      this.registerTouchBindingForTarget(args, owner, owner, shouldBroadcast);
+    }
+    registerTouchBindingForTarget(args, owner, target, shouldBroadcast) {
       const runtimeVariable = normalizeName(args.RUNTIME_VAR);
       const value = String(args.VALUE ?? "");
       const broadcastMessage = shouldBroadcast ? normalizeName(args.MESSAGE) : null;
       if (!runtimeVariable) throw new Error("RUNTIME_VAR must be specified.");
       if (shouldBroadcast && !broadcastMessage) throw new Error("MESSAGE must be specified.");
       requireRuntimeVariables(this.runtime);
-      this.touchBindings.set(owner.id, {
+      this.touchBindings.set(target.id, {
         ownerTargetId: owner.id,
         broadcastMessage,
         ...parseRuntimeBinding(runtimeVariable, value)
@@ -276,6 +298,14 @@
       const target = this.requireTarget(util);
       if (target.isStage) throw new Error("Touch input must be registered by a sprite or clone.");
       return target;
+    }
+    resolveActorTarget(value) {
+      const actorName = normalizeName(value);
+      if (!actorName) throw new Error("ACTOR must be specified.");
+      const matches = this.runtime.targets.filter((target) => !target.isStage && String(target.lookupVariableByNameAndType?.("actorName", "")?.value ?? "") === actorName);
+      if (matches.length === 0) throw new Error(`Actor not found: ${actorName}`);
+      if (matches.length > 1) throw new Error(`Actor name is not unique: ${actorName}`);
+      return matches[0];
     }
     requireAccumulatedPoseEvents() {
       const extension = this.runtime.ext_tmpose;
@@ -372,10 +402,17 @@
       }
       this.detachPoseListenerIfUnused();
     }
+    removeAllTouchBindingsForTarget(ownerTargetId) {
+      for (const [targetId, binding] of this.touchBindings) {
+        if (targetId === ownerTargetId || binding.ownerTargetId === ownerTargetId) {
+          this.touchBindings.delete(targetId);
+        }
+      }
+      this.detachPointerListenerIfUnused();
+    }
     removeAllBindingsForTarget(ownerTargetId) {
       this.removeAllKeyBindingsForTarget(ownerTargetId);
-      this.touchBindings.delete(ownerTargetId);
-      this.detachPointerListenerIfUnused();
+      this.removeAllTouchBindingsForTarget(ownerTargetId);
       this.removeAllPoseBindingsForTarget(ownerTargetId);
     }
     stopAllBindings() {

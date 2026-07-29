@@ -61,12 +61,16 @@ describe('Async Input extension', () => {
   const actor: TurboWarpTarget = {
     id: 'actor-original',
     isStage: false,
-    drawableID: 7
+    drawableID: 7,
+    lookupVariableByNameAndType: (name) =>
+      name === 'actorName' ? {value: 'Actor1'} : null
   };
   const clone: TurboWarpTarget = {
     id: 'actor-clone',
     isStage: false,
-    drawableID: 8
+    drawableID: 8,
+    lookupVariableByNameAndType: (name) =>
+      name === 'actorName' ? {value: 'Actor2'} : null
   };
 
   beforeEach(() => {
@@ -170,7 +174,8 @@ describe('Async Input extension', () => {
         'listenForTouch',
         'listenForTouchAndBroadcast',
         'stopListeningForTouch',
-        'stopAllInputListeners'
+        'stopAllInputListeners',
+        'listenForActorTouchAndBroadcast'
       ]);
 
     expect(new AsyncInputExtension({
@@ -187,7 +192,8 @@ describe('Async Input extension', () => {
       'listenForPose',
       'stopListeningForPose',
       'stopAllPoseListeners',
-      'stopAllInputListeners'
+      'stopAllInputListeners',
+      'listenForActorTouchAndBroadcast'
     ]);
 
     expect(new AsyncInputExtension({
@@ -360,6 +366,48 @@ describe('Async Input extension', () => {
       BROADCAST_OPTION: 'sprite touched'
     });
     expect(sideEffects).toEqual(['write', 'broadcast']);
+  });
+
+  it('binds actor touch by actorName while preserving the executing target as owner', () => {
+    const extension = new AsyncInputExtension();
+    extension.listenForActorTouchAndBroadcast(
+      {
+        ACTOR: 'Actor1',
+        RUNTIME_VAR: 'actorTouch',
+        VALUE: 'touched',
+        MESSAGE: 'actor touched'
+      },
+      util(stage)
+    );
+
+    canvasEvents.emit('pointerdown', pointerEvent());
+    expect(runtimeValues.get('actorTouch')).toBe('touched');
+    expect(startHats).toHaveBeenLastCalledWith('event_whenbroadcastreceived', {
+      BROADCAST_OPTION: 'actor touched'
+    });
+
+    emitRuntime('targetWasRemoved', stage);
+    expect(canvasEvents.listenerCount('pointerdown')).toBe(0);
+  });
+
+  it('requires actor touch targets to resolve uniquely', () => {
+    const extension = new AsyncInputExtension();
+    expect(() => extension.listenForActorTouchAndBroadcast(
+      {ACTOR: '', RUNTIME_VAR: 'touch', VALUE: 'yes', MESSAGE: 'touched'},
+      util(stage)
+    )).toThrow('ACTOR must be specified');
+    expect(() => extension.listenForActorTouchAndBroadcast(
+      {ACTOR: 'Missing', RUNTIME_VAR: 'touch', VALUE: 'yes', MESSAGE: 'touched'},
+      util(stage)
+    )).toThrow('Actor not found: Missing');
+
+    const lookup = clone.lookupVariableByNameAndType!;
+    clone.lookupVariableByNameAndType = actor.lookupVariableByNameAndType!;
+    expect(() => extension.listenForActorTouchAndBroadcast(
+      {ACTOR: 'Actor1', RUNTIME_VAR: 'touch', VALUE: 'yes', MESSAGE: 'touched'},
+      util(stage)
+    )).toThrow('Actor name is not unique: Actor1');
+    clone.lookupVariableByNameAndType = lookup;
   });
 
   it('applies touch arithmetic to the latest value', () => {

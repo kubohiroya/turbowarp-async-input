@@ -21,15 +21,30 @@
     "pose"
   ],
   "type": "module",
-  "files": [
-    "dist/"
-  ],
   "exports": {
     "./async-input.js": "./dist/async-input.js"
   },
-  "publishConfig": {
-    "access": "public"
+  "license": "MPL-2.0",
+  "homepage": "https://github.com/kubohiroya/turbowarp-async-input#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kubohiroya/turbowarp-async-input.git"
   },
+  "bugs": {
+    "url": "https://github.com/kubohiroya/turbowarp-async-input/issues"
+  },
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE"
+  ],
+  "unpkg": "./dist/async-input.js",
+  "jsdelivr": "./dist/async-input.js",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "packageManager": "pnpm@11.11.0",
   "scripts": {
     "dev": "vite build --watch",
     "typecheck": "tsc --noEmit",
@@ -38,7 +53,9 @@
     "docs": "node scripts/generate-readme.mjs",
     "docs:check": "npm run docs && git diff --exit-code -- README.md",
     "check:dist": "npm run build && git diff --exit-code -- dist",
-    "check": "npm run typecheck && npm run test && npm run build && npm run docs:check && npm run check:dist",
+    "pack:check": "npm pack --dry-run --ignore-scripts",
+    "release:check": "npm publish --dry-run --access public",
+    "check": "npm run typecheck && npm run test && npm run build && npm run docs:check && npm run check:dist && npm run pack:check",
     "prepack": "npm run check"
   },
   "devDependencies": {
@@ -46,5 +63,12 @@
     "typescript": "^5.9.3",
     "vite": "^7.3.6",
     "vitest": "^4.1.10"
-  }
+  },
+  "keywords": [
+    "turbowarp",
+    "scratch",
+    "extension",
+    "input",
+    "keyboard"
+  ]
 }

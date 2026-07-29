@@ -4,7 +4,7 @@ import {turboWarpExtension} from '@kubohiroya/vite-plugin-turbowarp-extension';
 export default defineConfig({
   plugins: [
     turboWarpExtension({
-      id: 'twAsyncInput',
+      id: 'kubohiroyaasyncinput',
       name: 'Async Input',
       description: 'Bind keyboard and current-sprite pointer input to Temporary Variables runtime variables.',
       author: 'Hiroya Kubo',
