@@ -50,6 +50,7 @@ interface DefinitionBlock {
   opcode: string;
   blockType: keyof typeof Scratch.BlockType;
   text: string;
+  description?: string;
   featureFlag?: keyof typeof FEATURE_FLAGS;
   arguments: Record<string, DefinitionArgument>;
 }
@@ -59,6 +60,19 @@ type FeatureFlags = Readonly<Record<keyof typeof FEATURE_FLAGS, boolean>>;
 const ARITHMETIC_OPERATORS = new Set<ArithmeticOperator>(['+', '-', '*', '/']);
 const POSE_CHANGE_REASONS = new Set(['prediction', 'reset', 'stop']);
 const blockDefinitions = definitions.blocks as DefinitionBlock[];
+const internalBlockDefinitions: DefinitionBlock[] = [{
+  opcode: 'listenForActorTouchAndBroadcast',
+  blockType: 'COMMAND',
+  text: 'listen for touch on actor [ACTOR] set runtime var [RUNTIME_VAR] to [VALUE] and broadcast [MESSAGE]',
+  description: 'Registers or replaces a pointer binding for a named kamishibai actor.',
+  featureFlag: 'asyncInput',
+  arguments: {
+    ACTOR: {type: 'STRING', defaultValue: 'Actor1'},
+    RUNTIME_VAR: {type: 'STRING', defaultValue: 'input'},
+    VALUE: {type: 'STRING', defaultValue: 'pressed'},
+    MESSAGE: {type: 'STRING', defaultValue: 'message1'}
+  }
+}];
 
 function normalizeName(value: unknown): string {
   return String(value ?? '').trim();
@@ -139,7 +153,7 @@ export class AsyncInputExtension {
       color1: '#2f9d8f',
       color2: '#247c72',
       color3: '#185b54',
-      blocks: blockDefinitions
+      blocks: [...blockDefinitions, ...internalBlockDefinitions]
         .filter((block) =>
           this.featureFlags.asyncInput
           && (!block.featureFlag || this.featureFlags[block.featureFlag])
@@ -219,6 +233,13 @@ export class AsyncInputExtension {
     this.registerTouchBinding(args, util, true);
   }
 
+  listenForActorTouchAndBroadcast(args: BlockArgs, util: ScratchBlockUtility): void {
+    this.requireActiveRuntime();
+    const owner = this.requireTarget(util);
+    const target = this.resolveActorTarget(args.ACTOR);
+    this.registerTouchBindingForTarget(args, owner, target, true);
+  }
+
   private registerTouchBinding(
     args: BlockArgs,
     util: ScratchBlockUtility,
@@ -226,6 +247,15 @@ export class AsyncInputExtension {
   ): void {
     this.requireActiveRuntime();
     const owner = this.requireSpriteTarget(util);
+    this.registerTouchBindingForTarget(args, owner, owner, shouldBroadcast);
+  }
+
+  private registerTouchBindingForTarget(
+    args: BlockArgs,
+    owner: TurboWarpTarget,
+    target: TurboWarpTarget,
+    shouldBroadcast: boolean
+  ): void {
     const runtimeVariable = normalizeName(args.RUNTIME_VAR);
     const value = String(args.VALUE ?? '');
     const broadcastMessage = shouldBroadcast ? normalizeName(args.MESSAGE) : null;
@@ -233,7 +263,7 @@ export class AsyncInputExtension {
     if (shouldBroadcast && !broadcastMessage) throw new Error('MESSAGE must be specified.');
 
     requireRuntimeVariables(this.runtime);
-    this.touchBindings.set(owner.id, {
+    this.touchBindings.set(target.id, {
       ownerTargetId: owner.id,
       broadcastMessage,
       ...parseRuntimeBinding(runtimeVariable, value)
@@ -355,6 +385,18 @@ export class AsyncInputExtension {
     return target;
   }
 
+  private resolveActorTarget(value: unknown): TurboWarpTarget {
+    const actorName = normalizeName(value);
+    if (!actorName) throw new Error('ACTOR must be specified.');
+    const matches = this.runtime.targets.filter((target) => (
+      !target.isStage
+      && String(target.lookupVariableByNameAndType?.('actorName', '')?.value ?? '') === actorName
+    ));
+    if (matches.length === 0) throw new Error(`Actor not found: ${actorName}`);
+    if (matches.length > 1) throw new Error(`Actor name is not unique: ${actorName}`);
+    return matches[0]!;
+  }
+
   private requireAccumulatedPoseEvents(): TMPoseExtension {
     const extension = this.runtime.ext_tmpose;
     if (
@@ -462,10 +504,18 @@ export class AsyncInputExtension {
     this.detachPoseListenerIfUnused();
   }
 
+  private removeAllTouchBindingsForTarget(ownerTargetId: string): void {
+    for (const [targetId, binding] of this.touchBindings) {
+      if (targetId === ownerTargetId || binding.ownerTargetId === ownerTargetId) {
+        this.touchBindings.delete(targetId);
+      }
+    }
+    this.detachPointerListenerIfUnused();
+  }
+
   private removeAllBindingsForTarget(ownerTargetId: string): void {
     this.removeAllKeyBindingsForTarget(ownerTargetId);
-    this.touchBindings.delete(ownerTargetId);
-    this.detachPointerListenerIfUnused();
+    this.removeAllTouchBindingsForTarget(ownerTargetId);
     this.removeAllPoseBindingsForTarget(ownerTargetId);
   }
 
