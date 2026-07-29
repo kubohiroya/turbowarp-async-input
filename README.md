@@ -10,6 +10,19 @@ Desktop with **Run extension without sandbox** enabled. Load TurboWarp's **Tempo
 extension before registering input. Pose input also requires TMPose with its accumulated pose
 scoring and change event features enabled.
 
+The versioned npm package contains the reviewed build:
+
+```bash
+pnpm add --save-exact @kubohiroya/turbowarp-async-input@0.1.0
+```
+
+Load `node_modules/@kubohiroya/turbowarp-async-input/dist/async-input.js`, or use the
+version-pinned CDN URL:
+
+```text
+https://cdn.jsdelivr.net/npm/@kubohiroya/turbowarp-async-input@0.1.0/dist/async-input.js
+```
+
 The distributed build enables key and touch blocks through the compile-time `asyncInput` feature
 flag in `config/feature-flags.ts`. Pose blocks additionally require the independently reversible
 `poseInput` feature flag, which remains OFF by default.
