@@ -3,6 +3,10 @@
 A target-scoped asynchronous keyboard, pointer, and accumulated pose input extension for
 TurboWarp Temporary Variables.
 
+See the illustrated [English user guide](https://kubohiroya.github.io/turbowarp-async-input/)
+or the [Japanese user guide](https://kubohiroya.github.io/turbowarp-async-input/ja/) for setup,
+examples, listener ownership, and troubleshooting.
+
 ## Installation
 
 Build or download `dist/async-input.js`, then load it as a local custom extension in TurboWarp
@@ -13,14 +17,14 @@ scoring and change event features enabled.
 The versioned npm package contains the reviewed build:
 
 ```bash
-pnpm add --save-exact @kubohiroya/turbowarp-async-input@0.1.0
+pnpm add --save-exact @kubohiroya/turbowarp-async-input@0.2.0
 ```
 
 Load `node_modules/@kubohiroya/turbowarp-async-input/dist/async-input.js`, or use the
 version-pinned CDN URL:
 
 ```text
-https://cdn.jsdelivr.net/npm/@kubohiroya/turbowarp-async-input@0.1.0/dist/async-input.js
+https://cdn.jsdelivr.net/npm/@kubohiroya/turbowarp-async-input@0.2.0/dist/async-input.js
 ```
 
 The distributed build enables key and touch blocks through the compile-time `asyncInput` feature

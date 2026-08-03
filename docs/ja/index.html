@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="TurboWarp Async Input拡張機能の図解ユーザーガイド。キーボード、タッチ、累積ポーズの入力をTemporary Variablesへ反映します。">
+    <meta name="theme-color" content="#2f9d8f">
+    <title>Async Input — 利用者ガイド</title>
+    <link rel="canonical" href="https://kubohiroya.github.io/turbowarp-async-input/ja/">
+    <link rel="alternate" hreflang="en" href="https://kubohiroya.github.io/turbowarp-async-input/">
+    <link rel="alternate" hreflang="ja" href="https://kubohiroya.github.io/turbowarp-async-input/ja/">
+    <link rel="alternate" hreflang="x-default" href="https://kubohiroya.github.io/turbowarp-async-input/">
+    <link rel="stylesheet" href="../assets/styles.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main">ガイド本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../" aria-label="Async Inputガイド ホーム">
+          <span class="brand-mark" aria-hidden="true">A</span>
+          <span class="brand-label">Async Input</span>
+        </a>
+        <nav class="header-links" aria-label="ガイドのナビゲーション">
+          <a class="source-link" href="https://github.com/kubohiroya/turbowarp-async-input">GitHub</a>
+          <a href="../" lang="en" hreflang="en">EN</a>
+          <a aria-current="page" href="./" lang="ja">日本語</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="hero" aria-labelledby="hero-title">
+        <div>
+          <p class="eyebrow">TurboWarp拡張機能 · 利用者ガイド</p>
+          <h1 id="hero-title">入力を、どのスクリプトからでも。</h1>
+          <p class="lead">
+            Async Inputは、キー操作、スプライトのタップ、累積ポーズをTemporary Variablesの
+            ランタイム変数につなぎます。どのスクリプトからでも最新値を読み取れ、値の更新と
+            同時にメッセージを送ることもできます。
+          </p>
+          <div class="hero-actions">
+            <a class="button primary" href="#quick-start">4ステップで始める</a>
+            <a class="button" href="#examples">ブロック例を見る</a>
+          </div>
+        </div>
+
+        <div class="hero-visual" aria-label="キー、タッチ、ポーズの入力でランタイム変数が更新される図">
+          <div class="stage-window" aria-hidden="true">
+            <div class="window-bar"><i></i><i></i><i></i></div>
+            <div class="stage">
+              <div class="keycap">Space</div>
+              <div class="sprite"><span class="smile"></span></div>
+              <div class="tap-ring"></div>
+              <div class="pose-chip">POSE: jump</div>
+            </div>
+          </div>
+          <div class="runtime-card" aria-hidden="true">
+            <div class="runtime-label">ランタイム変数</div>
+            <div class="runtime-value"><span>input</span><strong>pressed</strong></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="quick-start" aria-labelledby="quick-start-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">クイックスタート</p>
+            <h2 id="quick-start-title">4ステップで準備完了</h2>
+          </div>
+          <p>
+            プロジェクト開始時にリスナーを登録します。登録ブロックは入力を待たず、
+            ランタイム変数も初期化しないため、初期値は明示的に設定してください。
+          </p>
+        </div>
+
+        <ol class="steps">
+          <li>
+            <h3>依存する拡張機能を読み込む</h3>
+            <p>
+              先に<strong>Temporary Variables</strong>を追加します。次にAsync Inputをカスタム拡張機能として、
+              <strong>サンドボックス化せずに実行</strong>を有効にして読み込みます。
+            </p>
+          </li>
+          <li>
+            <h3>値を初期化する</h3>
+            <p>
+              Temporary Variablesで<code>input</code>や<code>score</code>などのランタイム変数を作ります。
+              算術更新を使う場合は<code>0</code>などの数値を設定します。
+            </p>
+          </li>
+          <li>
+            <h3>リスナーを登録する</h3>
+            <p>
+              Async Inputの「listen」ブロックを<strong>緑の旗が押されたとき</strong>の下に置きます。
+              実行したスプライト、クローン、ステージが登録の所有者になります。
+            </p>
+          </li>
+          <li>
+            <h3>押す・タップする・ポーズする</h3>
+            <p>
+              一致する入力でランタイム変数がすぐに更新されます。「and broadcast」付きの
+              ブロックは、更新後にScratchのメッセージを送ります。
+            </p>
+          </li>
+        </ol>
+
+        <figure class="flow-figure">
+          <figcaption class="figure-kicker">登録後に起きること</figcaption>
+          <div class="flow" role="img" aria-label="入力が共有イベントリスナーとターゲット所有の登録を通り、ランタイム変数を更新して、必要ならメッセージを送る流れ">
+            <div class="flow-node">
+              <span class="flow-icon" aria-hidden="true">⌨︎</span>
+              <strong>利用者の入力</strong>
+              <small>キー · スプライトのタップ · ポーズ変化</small>
+            </div>
+            <div class="arrow" aria-hidden="true">→</div>
+            <div class="flow-node">
+              <span class="flow-icon" aria-hidden="true">◎</span>
+              <strong>共有イベントリスナー</strong>
+              <small>どの入力に一致したか確認</small>
+            </div>
+            <div class="arrow" aria-hidden="true">→</div>
+            <div class="flow-node accent">
+              <span class="flow-icon" aria-hidden="true">◆</span>
+              <strong>ターゲット所有の登録</strong>
+              <small>値 + ランタイム変数名</small>
+            </div>
+            <div class="arrow" aria-hidden="true">→</div>
+            <div class="flow-node optional">
+              <span class="flow-icon" aria-hidden="true">↗</span>
+              <strong>書き込み後にメッセージ</strong>
+              <small>メッセージ送信は任意</small>
+            </div>
+          </div>
+          <p class="figure-note">
+            メッセージを送る場合も、必ず先にランタイム変数が更新されます。
+          </p>
+        </figure>
+
+        <div class="callout">
+          <span aria-hidden="true">⚑</span>
+          <div>
+            <strong>拡張機能のURL</strong>
+            <p>
+              レビュー済みのバージョン固定ビルドを使用してください：
+              <a href="https://cdn.jsdelivr.net/npm/@kubohiroya/turbowarp-async-input@0.2.0/dist/async-input.js"><code>@kubohiroya/turbowarp-async-input@0.2.0</code></a>
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="examples" aria-labelledby="examples-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">使用例</p>
+            <h2 id="examples-title">入力元を選ぶ</h2>
+          </div>
+          <p>
+            配布ビルドにはキーとタッチのブロックが含まれます。累積ポーズのブロックは任意機能で、
+            <code>poseInput</code>フィーチャーフラグを有効にしたビルドでのみ表示されます。
+          </p>
+        </div>
+
+        <div class="example-grid">
+          <article class="example-card">
+            <span class="example-type">⌨ キーボード</span>
+            <h3>Spaceキーで1点加算する</h3>
+            <div class="block-stack" aria-label="Scratchブロックの使用例">
+              <div class="scratch-block event">緑の旗が押されたとき</div>
+              <div class="scratch-block variable">ランタイム変数 <span class="slot">score</span> を <span class="slot">0</span> にする</div>
+              <div class="scratch-block">キー <span class="slot">Space</span> をlistenしてランタイム変数 <span class="slot">score</span> を <span class="slot">+1</span> にする</div>
+            </div>
+            <p>
+              キーIDには<code>KeyboardEvent.code</code>を使います：<code>KeyA</code>、
+              <code>Digit1</code>、<code>ArrowLeft</code>、<code>Space</code>、<code>Enter</code>などです。
+            </p>
+          </article>
+
+          <article class="example-card">
+            <span class="example-type">☝ タッチ／クリック</span>
+            <h3>スプライトをタップして送る</h3>
+            <div class="block-stack" aria-label="Scratchブロックの使用例">
+              <div class="scratch-block event">緑の旗が押されたとき</div>
+              <div class="scratch-block variable">ランタイム変数 <span class="slot">input</span> を <span class="slot"></span> にする</div>
+              <div class="scratch-block">このスプライトのtouchをlistenしてランタイム変数 <span class="slot">input</span> を <span class="slot">tapped</span> にし <span class="slot">actor-tapped</span> を送る</div>
+            </div>
+            <p>
+              ポインター位置で最前面に描画されているスプライトだけが一致します。透明部分と
+              クローンの判定はTurboWarpレンダラーの動作に従います。
+            </p>
+          </article>
+
+          <article class="example-card pose">
+            <span class="example-type">◇ 累積ポーズ · 任意機能</span>
+            <h3>「jump」が有効になったら反応する</h3>
+            <div class="block-stack" aria-label="Scratchブロックの使用例">
+              <div class="scratch-block event">緑の旗が押されたとき</div>
+              <div class="scratch-block variable">ランタイム変数 <span class="slot">pose</span> を <span class="slot">waiting</span> にする</div>
+              <div class="scratch-block pose-block">累積ポーズ <span class="slot">jump</span> をlistenしてランタイム変数 <span class="slot">pose</span> を <span class="slot">detected</span> にする</div>
+            </div>
+            <p>
+              累積ポーズのスコアリングと変更イベントを有効にしたTMPoseが必要です。有効な累積
+              ポーズ名が登録名に変わったときに実行されます。
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="ownership" aria-labelledby="ownership-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">ターゲットごとの所有</p>
+            <h2 id="ownership-title">登録はターゲットごとに独立</h2>
+          </div>
+          <p>
+            同じターゲットから同じ入力を再登録すると、そのターゲットの登録だけが置き換わります。
+            別のスプライトやクローンは、同じキーやポーズをそれぞれ独立してlistenできます。
+          </p>
+        </div>
+
+        <figure class="ownership-figure">
+          <figcaption class="figure-kicker">1つの物理キーに3つの独立した登録</figcaption>
+          <div class="ownership-map" role="img" aria-label="スプライトA、クローンA1、ステージがそれぞれ独立したKeyAの登録を持つ図">
+            <div class="targets">
+              <div class="target-card">
+                <span class="target-avatar" aria-hidden="true">A</span>
+                <strong>スプライトA</strong>
+                <small>owner: sprite-a</small>
+              </div>
+              <div class="target-card">
+                <span class="target-avatar" aria-hidden="true">A′</span>
+                <strong>クローンA1</strong>
+                <small>owner: clone-a1</small>
+              </div>
+              <div class="target-card">
+                <span class="target-avatar" aria-hidden="true">S</span>
+                <strong>ステージ</strong>
+                <small>owner: stage</small>
+              </div>
+            </div>
+            <div class="many-arrow" aria-hidden="true">→</div>
+            <div class="binding-list">
+              <div class="binding-card"><strong>KeyA → player1</strong><small>スプライトAの登録</small></div>
+              <div class="binding-card"><strong>KeyA → player2</strong><small>クローンA1の登録</small></div>
+              <div class="binding-card"><strong>KeyA → global</strong><small>ステージの登録</small></div>
+            </div>
+          </div>
+          <p class="figure-note"><code>KeyA</code>を1回押すと、一致するターゲット所有の登録がすべて更新されます。</p>
+        </figure>
+
+        <div class="two-column" style="margin-top: 1rem">
+          <article class="info-card">
+            <h3>タッチはターゲット固有</h3>
+            <ul>
+              <li>通常のタッチリスナーは、登録したスプライトまたはクローンに属します。</li>
+              <li>ステージは「このスプライト」のタッチブロックを登録できません。</li>
+              <li>actor互換ブロックは、呼び出し元を所有者のまま、名前付きactorに結び付けます。</li>
+            </ul>
+          </article>
+          <article class="info-card">
+            <h3>登録は自動的に片付く</h3>
+            <ul>
+              <li>ターゲットを削除すると、そのターゲット所有の登録も削除されます。</li>
+              <li>緑の旗、すべてを止める、ランタイム破棄で全登録が削除されます。</li>
+              <li>途中で削除したいときはstopブロックを使います。</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="values" aria-labelledby="values-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">値の扱い</p>
+            <h2 id="values-title">文字列の代入と数値の計算</h2>
+          </div>
+          <p>
+            値が<code>+</code>、<code>-</code>、<code>*</code>、<code>/</code>で始まる場合は
+            複合算術更新になります。それ以外は入力した文字列がそのまま代入されます。
+          </p>
+        </div>
+
+        <figure class="math-figure">
+          <figcaption class="figure-kicker">例：Spaceキーで2を加算</figcaption>
+          <div class="math-flow" role="img" aria-label="現在のscore 8に登録値2を加え、新しいscore 10になる図">
+            <div class="math-node"><small>現在の<code>score</code></small><strong>8</strong></div>
+            <div class="math-op" aria-hidden="true">+</div>
+            <div class="math-node"><small>登録した値</small><strong>+2</strong></div>
+            <div class="math-op" aria-hidden="true">→</div>
+            <div class="math-node"><small>新しい<code>score</code></small><strong>10</strong></div>
+          </div>
+          <table class="math-table">
+            <thead><tr><th>VALUE</th><th>動作</th><th>必要な初期値</th></tr></thead>
+            <tbody>
+              <tr><td><code>+2</code></td><td>2を足す</td><td>有限の数値</td></tr>
+              <tr><td><code>-1</code></td><td>1を引く</td><td>有限の数値</td></tr>
+              <tr><td><code>*3</code></td><td>3を掛ける</td><td>有限の数値</td></tr>
+              <tr><td><code>/2</code></td><td>2で割る</td><td>有限の数値、0でない除数</td></tr>
+              <tr><td><code>pressed</code></td><td>文字列をそのまま代入</td><td>なし</td></tr>
+            </tbody>
+          </table>
+          <p class="figure-note">
+            無効または有限でない算術計算では現在値を変えず、その登録のメッセージ送信も行いません。
+          </p>
+        </figure>
+      </section>
+
+      <section class="section" id="reference" aria-labelledby="reference-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">ブロック一覧</p>
+            <h2 id="reference-title">listenとstop</h2>
+          </div>
+          <p>
+            「listen」ブロックは動作を登録または置換してすぐに処理を返します。「stop」ブロックは、
+            実行したターゲットが所有する登録だけに作用します。
+          </p>
+        </div>
+
+        <div class="reference-grid">
+          <article class="reference-card">
+            <h3>キーボード · 既定</h3>
+            <ul>
+              <li><strong>listen for key …</strong>：ランタイム変数を書き換えます。</li>
+              <li><strong>listen for key … and broadcast …</strong>：書き換えてからメッセージを送ります。</li>
+              <li><strong>stop listening for key …</strong>：キー1個の登録を削除します。</li>
+              <li><strong>stop all key listeners …</strong>：このターゲットのキー登録をすべて削除します。</li>
+            </ul>
+          </article>
+          <article class="reference-card">
+            <h3>タッチ · 既定</h3>
+            <ul>
+              <li><strong>listen for touch on this sprite …</strong>：ランタイム変数を書き換えます。</li>
+              <li><strong>listen for touch … and broadcast …</strong>：書き換えてからメッセージを送ります。</li>
+              <li><strong>stop listening for touch …</strong>：このターゲットのタッチ登録を削除します。</li>
+              <li><strong>listen for touch on actor …</strong>：紙芝居連携用の互換ブロックです。</li>
+            </ul>
+          </article>
+          <article class="reference-card optional">
+            <h3>累積ポーズ · 任意機能</h3>
+            <ul>
+              <li><strong>listen for accumulated pose …</strong>：ポーズ名の変化時に書き換えます。</li>
+              <li><strong>stop listening for accumulated pose …</strong>：ポーズ1個の登録を削除します。</li>
+              <li><strong>stop all pose listeners …</strong>：このターゲットのポーズ登録をすべて削除します。</li>
+              <li><strong>stop all input listeners …</strong>：このターゲット所有の入力登録をすべて削除します。</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="troubleshooting" aria-labelledby="troubleshooting-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">トラブルシューティング</p>
+            <h2 id="troubleshooting-title">反応しないときは</h2>
+          </div>
+          <p>項目を開くと、よくある原因と最短の解決方法を確認できます。</p>
+        </div>
+
+        <div class="faq-list">
+          <details>
+            <summary>listenブロックでTemporary Variablesが必要と表示される</summary>
+            <p>
+              TurboWarpのTemporary Variables拡張機能をAsync Inputより先に読み込み、プロジェクトを
+              再開してください。Async Inputはその拡張機能のランタイム変数APIを利用します。
+            </p>
+          </details>
+          <details>
+            <summary>キーが一致しない</summary>
+            <p>
+              入力文字ではなく物理キーコードを使います。<code>a</code>ではなく<code>KeyA</code>、
+              <code>1</code>ではなく<code>Digit1</code>です。キーリピート、IME変換中、編集可能な
+              コントロール内でのキー入力は意図的に無視されます。
+            </p>
+          </details>
+          <details>
+            <summary>あるスプライトではタッチできるが、別のスプライトではできない</summary>
+            <p>
+              listenが必要なスプライトまたはクローンごとに登録ブロックを実行します。レンダラーが
+              最前面として選んだスプライトだけが一致し、ステージは「このスプライト」のタッチ登録には使えません。
+            </p>
+          </details>
+          <details>
+            <summary>ポーズブロックが表示されない</summary>
+            <p>
+              ポーズ入力は独立して切り戻せる<code>poseInput</code>フィーチャーフラグの背後にあり、
+              配布ビルドではOFFです。ポーズ対応ビルドには、累積スコアリングと変更イベントを有効にしたTMPoseも必要です。
+            </p>
+          </details>
+          <details>
+            <summary>算術更新で値が変わらない</summary>
+            <p>
+              ランタイム変数を有限の数値で初期化します。未作成の値、数値でない文字列、0除算、
+              オーバーフロー、有限でないオペランドは、現在値を変えずに拒否されます。
+            </p>
+          </details>
+          <details>
+            <summary>緑の旗を押す前は動いたが、押した後に動かない</summary>
+            <p>
+              プロジェクトの開始と停止では、設計上すべての登録が消去されます。listenブロックを
+              <strong>緑の旗が押されたとき</strong>の下に置き、実行ごとに必要な登録を作り直してください。
+            </p>
+          </details>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <p>Async Input · MPL-2.0 · 既定のガイド言語は英語です。</p>
+        <div class="footer-links">
+          <a href="https://github.com/kubohiroya/turbowarp-async-input">ソースコード</a>
+          <a href="https://github.com/kubohiroya/turbowarp-async-input/issues">問題を報告</a>
+          <a href="../" lang="en" hreflang="en">English guide</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

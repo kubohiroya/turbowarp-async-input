@@ -1,6 +1,6 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {FEATURE_FLAGS} from '../config/feature-flags.js';
-import {AsyncInputExtension, isEditableTarget} from '../src/extension.js';
+import {AsyncInputExtension, DOCS_URI, isEditableTarget} from '../src/extension.js';
 
 type TestListener = (event: Record<string, unknown>) => void;
 
@@ -165,7 +165,9 @@ describe('Async Input extension', () => {
   it('publishes key and touch blocks while keeping rollback flags independent', () => {
     expect(FEATURE_FLAGS.asyncInput).toBe(true);
     expect(FEATURE_FLAGS.poseInput).toBe(false);
-    expect(new AsyncInputExtension().getInfo().blocks.map((block) => block.opcode))
+    const extensionInfo = new AsyncInputExtension().getInfo();
+    expect(extensionInfo.docsURI).toBe(DOCS_URI);
+    expect(extensionInfo.blocks.map((block) => block.opcode))
       .toEqual([
         'listenForKey',
         'listenForKeyAndBroadcast',

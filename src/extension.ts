@@ -8,6 +8,7 @@ import {
 
 export const EXTENSION_ID = 'kubohiroyaasyncinput';
 export const EXTENSION_VERSION = '2026-07-18-key-touch-broadcast-v1';
+export const DOCS_URI = 'https://kubohiroya.github.io/turbowarp-async-input/';
 export const ACCUMULATED_POSE_CHANGED_EVENT = 'TMPOSE_ACCUMULATED_POSE_CHANGED';
 
 type BlockArgs = Record<string, unknown>;
@@ -150,6 +151,7 @@ export class AsyncInputExtension {
     return {
       id: EXTENSION_ID,
       name: Scratch.translate(definitions.extensionName),
+      docsURI: DOCS_URI,
       color1: '#2f9d8f',
       color2: '#247c72',
       color3: '#185b54',

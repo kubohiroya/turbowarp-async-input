@@ -48,6 +48,7 @@ interface ScratchBlockDefinition {
 interface ScratchExtensionInfo {
   id: string;
   name: string;
+  docsURI: string;
   color1: string;
   color2: string;
   color3: string;

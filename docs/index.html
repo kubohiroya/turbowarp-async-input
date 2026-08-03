@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Illustrated user guide for the TurboWarp Async Input extension: keyboard, touch, and accumulated pose events for Temporary Variables.">
+    <meta name="theme-color" content="#2f9d8f">
+    <title>Async Input — User Guide</title>
+    <link rel="canonical" href="https://kubohiroya.github.io/turbowarp-async-input/">
+    <link rel="alternate" hreflang="en" href="https://kubohiroya.github.io/turbowarp-async-input/">
+    <link rel="alternate" hreflang="ja" href="https://kubohiroya.github.io/turbowarp-async-input/ja/">
+    <link rel="alternate" hreflang="x-default" href="https://kubohiroya.github.io/turbowarp-async-input/">
+    <link rel="stylesheet" href="./assets/styles.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to the guide</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="./" aria-label="Async Input guide home">
+          <span class="brand-mark" aria-hidden="true">A</span>
+          <span class="brand-label">Async Input</span>
+        </a>
+        <nav class="header-links" aria-label="Guide navigation">
+          <a class="source-link" href="https://github.com/kubohiroya/turbowarp-async-input">GitHub</a>
+          <a aria-current="page" href="./" lang="en">EN</a>
+          <a href="./ja/" lang="ja" hreflang="ja">日本語</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="hero" aria-labelledby="hero-title">
+        <div>
+          <p class="eyebrow">TurboWarp extension · User guide</p>
+          <h1 id="hero-title">Input now. React anywhere.</h1>
+          <p class="lead">
+            Async Input connects a physical key, a sprite tap, or an accumulated pose to a
+            Temporary Variables runtime variable. Your project can read the latest value from
+            any script—and optionally receive a broadcast at the same moment.
+          </p>
+          <div class="hero-actions">
+            <a class="button primary" href="#quick-start">Start in four steps</a>
+            <a class="button" href="#examples">See block examples</a>
+          </div>
+        </div>
+
+        <div class="hero-visual" aria-label="Keyboard, touch, and pose input update a runtime variable">
+          <div class="stage-window" aria-hidden="true">
+            <div class="window-bar"><i></i><i></i><i></i></div>
+            <div class="stage">
+              <div class="keycap">Space</div>
+              <div class="sprite"><span class="smile"></span></div>
+              <div class="tap-ring"></div>
+              <div class="pose-chip">POSE: jump</div>
+            </div>
+          </div>
+          <div class="runtime-card" aria-hidden="true">
+            <div class="runtime-label">Runtime variable</div>
+            <div class="runtime-value"><span>input</span><strong>pressed</strong></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="quick-start" aria-labelledby="quick-start-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Quick start</p>
+            <h2 id="quick-start-title">Ready in four steps</h2>
+          </div>
+          <p>
+            Register listeners when the project starts. Registration remembers what should happen;
+            it does not wait for the input and it does not initialize the runtime variable for you.
+          </p>
+        </div>
+
+        <ol class="steps">
+          <li>
+            <h3>Load dependencies</h3>
+            <p>
+              Add <strong>Temporary Variables</strong> first. Then load Async Input as a custom
+              extension with <strong>Run extension without sandbox</strong> enabled.
+            </p>
+          </li>
+          <li>
+            <h3>Initialize a value</h3>
+            <p>
+              Use Temporary Variables to create a runtime variable, such as <code>input</code> or
+              <code>score</code>. Use <code>0</code> before arithmetic updates.
+            </p>
+          </li>
+          <li>
+            <h3>Register a listener</h3>
+            <p>
+              Put an Async Input “listen” block under <strong>when green flag clicked</strong>.
+              The sprite, clone, or stage running the block owns that binding.
+            </p>
+          </li>
+          <li>
+            <h3>Press, tap, or pose</h3>
+            <p>
+              Matching input updates the runtime variable immediately. “And broadcast” blocks then
+              start the named Scratch broadcast.
+            </p>
+          </li>
+        </ol>
+
+        <figure class="flow-figure">
+          <figcaption class="figure-kicker">What happens after registration</figcaption>
+          <div class="flow" role="img" aria-label="User input passes through one shared event listener and a target-owned binding, updates a runtime variable, then optionally broadcasts">
+            <div class="flow-node">
+              <span class="flow-icon" aria-hidden="true">⌨︎</span>
+              <strong>User input</strong>
+              <small>key · sprite tap · pose change</small>
+            </div>
+            <div class="arrow" aria-hidden="true">→</div>
+            <div class="flow-node">
+              <span class="flow-icon" aria-hidden="true">◎</span>
+              <strong>Shared event listener</strong>
+              <small>checks which input matched</small>
+            </div>
+            <div class="arrow" aria-hidden="true">→</div>
+            <div class="flow-node accent">
+              <span class="flow-icon" aria-hidden="true">◆</span>
+              <strong>Target-owned binding</strong>
+              <small>value + runtime variable name</small>
+            </div>
+            <div class="arrow" aria-hidden="true">→</div>
+            <div class="flow-node optional">
+              <span class="flow-icon" aria-hidden="true">↗</span>
+              <strong>Write, then broadcast</strong>
+              <small>broadcast is optional</small>
+            </div>
+          </div>
+          <p class="figure-note">
+            The runtime variable is always written before the optional broadcast starts.
+          </p>
+        </figure>
+
+        <div class="callout">
+          <span aria-hidden="true">⚑</span>
+          <div>
+            <strong>Extension URL</strong>
+            <p>
+              Use the reviewed, version-pinned build:
+              <a href="https://cdn.jsdelivr.net/npm/@kubohiroya/turbowarp-async-input@0.2.0/dist/async-input.js"><code>@kubohiroya/turbowarp-async-input@0.2.0</code></a>.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="examples" aria-labelledby="examples-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Examples</p>
+            <h2 id="examples-title">Choose the input source</h2>
+          </div>
+          <p>
+            Key and touch blocks are included in the distributed build. Accumulated pose blocks are
+            optional and only appear in a build with the <code>poseInput</code> feature flag enabled.
+          </p>
+        </div>
+
+        <div class="example-grid">
+          <article class="example-card">
+            <span class="example-type">⌨ Keyboard</span>
+            <h3>Add one point with Space</h3>
+            <div class="block-stack" aria-label="Example Scratch block stack">
+              <div class="scratch-block event">when green flag clicked</div>
+              <div class="scratch-block variable">set runtime variable <span class="slot">score</span> to <span class="slot">0</span></div>
+              <div class="scratch-block">listen for key <span class="slot">Space</span> set runtime var <span class="slot">score</span> to <span class="slot">+1</span></div>
+            </div>
+            <p>
+              Key IDs use <code>KeyboardEvent.code</code>: <code>KeyA</code>, <code>Digit1</code>,
+              <code>ArrowLeft</code>, <code>Space</code>, or <code>Enter</code>.
+            </p>
+          </article>
+
+          <article class="example-card">
+            <span class="example-type">☝ Touch / click</span>
+            <h3>Tap a sprite and broadcast</h3>
+            <div class="block-stack" aria-label="Example Scratch block stack">
+              <div class="scratch-block event">when green flag clicked</div>
+              <div class="scratch-block variable">set runtime variable <span class="slot">input</span> to <span class="slot"></span></div>
+              <div class="scratch-block">listen for touch on this sprite set runtime var <span class="slot">input</span> to <span class="slot">tapped</span> and broadcast <span class="slot">actor-tapped</span></div>
+            </div>
+            <p>
+              Only the topmost rendered sprite under the pointer matches. Transparent pixels and
+              clones follow TurboWarp renderer behavior.
+            </p>
+          </article>
+
+          <article class="example-card pose">
+            <span class="example-type">◇ Accumulated pose · optional</span>
+            <h3>React when “jump” becomes active</h3>
+            <div class="block-stack" aria-label="Example Scratch block stack">
+              <div class="scratch-block event">when green flag clicked</div>
+              <div class="scratch-block variable">set runtime variable <span class="slot">pose</span> to <span class="slot">waiting</span></div>
+              <div class="scratch-block pose-block">listen for accumulated pose <span class="slot">jump</span> set runtime var <span class="slot">pose</span> to <span class="slot">detected</span></div>
+            </div>
+            <p>
+              Requires TMPose with accumulated pose scoring and change events enabled. The binding
+              runs when the active accumulated pose changes to the registered name.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="ownership" aria-labelledby="ownership-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Target ownership</p>
+            <h2 id="ownership-title">Each target keeps its own binding</h2>
+          </div>
+          <p>
+            Re-registering the same input from the same target replaces only that target’s binding.
+            Other sprites and clones can listen for the same key or pose independently.
+          </p>
+        </div>
+
+        <figure class="ownership-figure">
+          <figcaption class="figure-kicker">One physical key, three independent bindings</figcaption>
+          <div class="ownership-map" role="img" aria-label="Sprite A, Clone A1, and the Stage each own a separate KeyA binding">
+            <div class="targets">
+              <div class="target-card">
+                <span class="target-avatar" aria-hidden="true">A</span>
+                <strong>Sprite A</strong>
+                <small>owner: sprite-a</small>
+              </div>
+              <div class="target-card">
+                <span class="target-avatar" aria-hidden="true">A′</span>
+                <strong>Clone A1</strong>
+                <small>owner: clone-a1</small>
+              </div>
+              <div class="target-card">
+                <span class="target-avatar" aria-hidden="true">S</span>
+                <strong>Stage</strong>
+                <small>owner: stage</small>
+              </div>
+            </div>
+            <div class="many-arrow" aria-hidden="true">→</div>
+            <div class="binding-list">
+              <div class="binding-card"><strong>KeyA → player1</strong><small>Sprite A binding</small></div>
+              <div class="binding-card"><strong>KeyA → player2</strong><small>Clone A1 binding</small></div>
+              <div class="binding-card"><strong>KeyA → global</strong><small>Stage binding</small></div>
+            </div>
+          </div>
+          <p class="figure-note">One <code>KeyA</code> press updates every matching target-owned binding.</p>
+        </figure>
+
+        <div class="two-column" style="margin-top: 1rem">
+          <article class="info-card">
+            <h3>Touch is target-specific</h3>
+            <ul>
+              <li>A normal touch listener belongs to the sprite or clone that registers it.</li>
+              <li>The Stage cannot register the “this sprite” touch block.</li>
+              <li>The actor compatibility block can bind a named actor while retaining its caller as owner.</li>
+            </ul>
+          </article>
+          <article class="info-card">
+            <h3>Bindings clean up automatically</h3>
+            <ul>
+              <li>Deleting a target removes every binding owned by that target.</li>
+              <li>Green flag, Stop All, and runtime disposal remove all bindings.</li>
+              <li>Use the stop blocks when you need to remove bindings earlier.</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="values" aria-labelledby="values-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Values</p>
+            <h2 id="values-title">Set text or calculate a new number</h2>
+          </div>
+          <p>
+            A value beginning with <code>+</code>, <code>-</code>, <code>*</code>, or <code>/</code>
+            is a compound arithmetic update. Any other value is assigned as exact text.
+          </p>
+        </div>
+
+        <figure class="math-figure">
+          <figcaption class="figure-kicker">Example: a Space press adds two</figcaption>
+          <div class="math-flow" role="img" aria-label="Current score 8 plus binding value 2 produces new score 10">
+            <div class="math-node"><small>current <code>score</code></small><strong>8</strong></div>
+            <div class="math-op" aria-hidden="true">+</div>
+            <div class="math-node"><small>registered value</small><strong>+2</strong></div>
+            <div class="math-op" aria-hidden="true">→</div>
+            <div class="math-node"><small>new <code>score</code></small><strong>10</strong></div>
+          </div>
+          <table class="math-table">
+            <thead><tr><th>VALUE</th><th>Effect</th><th>Starting value required</th></tr></thead>
+            <tbody>
+              <tr><td><code>+2</code></td><td>Add 2</td><td>Finite number</td></tr>
+              <tr><td><code>-1</code></td><td>Subtract 1</td><td>Finite number</td></tr>
+              <tr><td><code>*3</code></td><td>Multiply by 3</td><td>Finite number</td></tr>
+              <tr><td><code>/2</code></td><td>Divide by 2</td><td>Finite number; non-zero divisor</td></tr>
+              <tr><td><code>pressed</code></td><td>Set exact text</td><td>None</td></tr>
+            </tbody>
+          </table>
+          <p class="figure-note">
+            Invalid or non-finite arithmetic leaves the current value unchanged and skips that binding’s broadcast.
+          </p>
+        </figure>
+      </section>
+
+      <section class="section" id="reference" aria-labelledby="reference-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Block reference</p>
+            <h2 id="reference-title">Listeners and cleanup</h2>
+          </div>
+          <p>
+            “Listen” blocks register or replace behavior and return immediately. “Stop” blocks only
+            affect bindings owned by the target that runs them.
+          </p>
+        </div>
+
+        <div class="reference-grid">
+          <article class="reference-card">
+            <h3>Keyboard · default</h3>
+            <ul>
+              <li><strong>listen for key …</strong> writes a runtime value.</li>
+              <li><strong>listen for key … and broadcast …</strong> writes, then broadcasts.</li>
+              <li><strong>stop listening for key …</strong> removes one key binding.</li>
+              <li><strong>stop all key listeners …</strong> removes this target’s key bindings.</li>
+            </ul>
+          </article>
+          <article class="reference-card">
+            <h3>Touch · default</h3>
+            <ul>
+              <li><strong>listen for touch on this sprite …</strong> writes a runtime value.</li>
+              <li><strong>listen for touch … and broadcast …</strong> writes, then broadcasts.</li>
+              <li><strong>stop listening for touch …</strong> removes this target’s touch binding.</li>
+              <li><strong>listen for touch on actor …</strong> is provided for kamishibai integration.</li>
+            </ul>
+          </article>
+          <article class="reference-card optional">
+            <h3>Accumulated pose · optional</h3>
+            <ul>
+              <li><strong>listen for accumulated pose …</strong> writes on a pose-name change.</li>
+              <li><strong>stop listening for accumulated pose …</strong> removes one pose binding.</li>
+              <li><strong>stop all pose listeners …</strong> removes this target’s pose bindings.</li>
+              <li><strong>stop all input listeners …</strong> removes every input binding this target owns.</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="troubleshooting" aria-labelledby="troubleshooting-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Troubleshooting</p>
+            <h2 id="troubleshooting-title">If nothing happens</h2>
+          </div>
+          <p>Open each item for the most common cause and the shortest fix.</p>
+        </div>
+
+        <div class="faq-list">
+          <details>
+            <summary>The listen block reports that Temporary Variables is required</summary>
+            <p>
+              Load TurboWarp’s Temporary Variables extension before Async Input, then start the
+              project again. Async Input writes through that extension’s runtime-variable API.
+            </p>
+          </details>
+          <details>
+            <summary>A key does not match</summary>
+            <p>
+              Use the physical key code, not the typed character: <code>KeyA</code>, not
+              <code>a</code>; <code>Digit1</code>, not <code>1</code>. Auto-repeat, IME composition,
+              and key presses inside editable controls are intentionally ignored.
+            </p>
+          </details>
+          <details>
+            <summary>Touch works on one sprite but not another</summary>
+            <p>
+              Run a registration block from each sprite or clone that needs a listener. Only the
+              renderer’s topmost picked sprite receives a pointer match, and the Stage is not valid
+              for a “this sprite” touch listener.
+            </p>
+          </details>
+          <details>
+            <summary>The pose blocks are missing</summary>
+            <p>
+              Pose input is behind the independently reversible <code>poseInput</code> feature flag,
+              which is OFF in the distributed build. A pose-enabled build also needs TMPose with
+              accumulated scoring and change events enabled.
+            </p>
+          </details>
+          <details>
+            <summary>An arithmetic update does not change the value</summary>
+            <p>
+              Initialize the runtime variable to a finite number. Missing values, non-numeric text,
+              division by zero, overflow, and non-finite operands are rejected without changing the
+              current value.
+            </p>
+          </details>
+          <details>
+            <summary>A listener worked before pressing the green flag, but not after</summary>
+            <p>
+              Starting or stopping the project clears all bindings by design. Register listeners
+              under <strong>when green flag clicked</strong> so the intended bindings are recreated
+              for each run.
+            </p>
+          </details>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <p>Async Input · MPL-2.0 · English is the default guide language.</p>
+        <div class="footer-links">
+          <a href="https://github.com/kubohiroya/turbowarp-async-input">Source</a>
+          <a href="https://github.com/kubohiroya/turbowarp-async-input/issues">Report an issue</a>
+          <a href="./ja/" lang="ja" hreflang="ja">日本語ガイド</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
