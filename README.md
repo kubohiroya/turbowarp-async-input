@@ -3,6 +3,10 @@
 A target-scoped asynchronous keyboard, pointer, and accumulated pose input extension for
 TurboWarp Temporary Variables.
 
+See the illustrated [English user guide](https://kubohiroya.github.io/turbowarp-async-input/)
+or the [Japanese user guide](https://kubohiroya.github.io/turbowarp-async-input/ja/) for setup,
+examples, listener ownership, and troubleshooting.
+
 ## Installation
 
 Build or download `dist/async-input.js`, then load it as a local custom extension in TurboWarp

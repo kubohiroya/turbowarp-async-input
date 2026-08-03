@@ -2,6 +2,7 @@ import {readFile, writeFile} from 'node:fs/promises';
 
 const START = '<!-- BEGIN GENERATED BLOCKS -->';
 const END = '<!-- END GENERATED BLOCKS -->';
+const checkOnly = process.argv.includes('--check');
 
 const definitions = JSON.parse(
   await readFile(new URL('../src/block-definitions.json', import.meta.url), 'utf8')
@@ -19,7 +20,14 @@ const next = readme.replace(
   new RegExp(`${escapeRegExp(START)}[\\s\\S]*?${escapeRegExp(END)}`),
   replacement
 );
-await writeFile(readmeUrl, next);
+if (checkOnly) {
+  if (next !== readme) {
+    throw new Error('README.md generated block reference is out of date. Run npm run docs.');
+  }
+  console.log('README.md generated block reference is up to date.');
+} else {
+  await writeFile(readmeUrl, next);
+}
 
 function renderBlock(block) {
   const rows = [

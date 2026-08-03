@@ -8,7 +8,7 @@
     "type": "git",
     "url": "git+https://github.com/kubohiroya/turbowarp-async-input.git"
   },
-  "homepage": "https://github.com/kubohiroya/turbowarp-async-input#readme",
+  "homepage": "https://kubohiroya.github.io/turbowarp-async-input/",
   "bugs": {
     "url": "https://github.com/kubohiroya/turbowarp-async-input/issues"
   },
@@ -25,7 +25,7 @@
     "./async-input.js": "./dist/async-input.js"
   },
   "license": "MPL-2.0",
-  "homepage": "https://github.com/kubohiroya/turbowarp-async-input#readme",
+  "homepage": "https://kubohiroya.github.io/turbowarp-async-input/",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kubohiroya/turbowarp-async-input.git"
@@ -51,11 +51,12 @@
     "build": "vite build",
     "test": "vitest run",
     "docs": "node scripts/generate-readme.mjs",
-    "docs:check": "npm run docs && git diff --exit-code -- README.md",
-    "check:dist": "npm run build && git diff --exit-code -- dist",
+    "docs:check": "node scripts/generate-readme.mjs --check",
+    "site:check": "node scripts/check-site.mjs",
+    "check:dist": "node scripts/check-dist.mjs",
     "pack:check": "npm pack --dry-run --ignore-scripts",
     "release:check": "npm publish --dry-run --access public",
-    "check": "npm run typecheck && npm run test && npm run build && npm run docs:check && npm run check:dist && npm run pack:check",
+    "check": "npm run typecheck && npm run test && npm run build && npm run docs:check && npm run site:check && npm run check:dist && npm run pack:check",
     "prepack": "npm run check"
   },
   "devDependencies": {
