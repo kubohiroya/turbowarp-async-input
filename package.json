@@ -1,6 +1,6 @@
 {
   "name": "@kubohiroya/turbowarp-async-input",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A target-scoped asynchronous keyboard, pointer, and accumulated pose input extension for TurboWarp.",
   "author": "Hiroya Kubo <hiroya@cuc.ac.jp>",
   "license": "MPL-2.0",
@@ -16,6 +16,7 @@
     "turbowarp",
     "scratch",
     "extension",
+    "input",
     "keyboard",
     "pointer",
     "pose"
@@ -23,15 +24,6 @@
   "type": "module",
   "exports": {
     "./async-input.js": "./dist/async-input.js"
-  },
-  "license": "MPL-2.0",
-  "homepage": "https://kubohiroya.github.io/turbowarp-async-input/",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/kubohiroya/turbowarp-async-input.git"
-  },
-  "bugs": {
-    "url": "https://github.com/kubohiroya/turbowarp-async-input/issues"
   },
   "files": [
     "dist/",
@@ -64,12 +56,5 @@
     "typescript": "^5.9.3",
     "vite": "^7.3.6",
     "vitest": "^4.1.10"
-  },
-  "keywords": [
-    "turbowarp",
-    "scratch",
-    "extension",
-    "input",
-    "keyboard"
-  ]
+  }
 }
