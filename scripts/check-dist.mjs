@@ -1,17 +1,13 @@
 import {spawnSync} from 'node:child_process';
-import {readFile} from 'node:fs/promises';
-
-const distributionUrl = new URL('../dist/async-input.js', import.meta.url);
-const before = await readFile(distributionUrl, 'utf8');
 const build = spawnSync('npm', ['run', 'build'], {stdio: 'inherit'});
 
 if (build.status !== 0) {
   throw new Error(`Distribution build failed with status ${build.status ?? 'unknown'}.`);
 }
 
-const after = await readFile(distributionUrl, 'utf8');
-if (after !== before) {
-  throw new Error('dist/async-input.js was out of date and has been regenerated.');
+const diff = spawnSync('git', ['diff', '--exit-code', '--', 'dist'], {stdio: 'inherit'});
+if (diff.status !== 0) {
+  throw new Error('dist outputs were out of date and have been regenerated.');
 }
 
-console.log('dist/async-input.js is up to date.');
+console.log('dist outputs are up to date.');
