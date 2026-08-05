@@ -34,15 +34,27 @@ flag in `config/feature-flags.ts`. Pose blocks additionally require the independ
 ## Composition API
 
 DSL controllers can import `@kubohiroya/turbowarp-async-input/composition` without registering the
-Standalone extension or accessing global `Scratch`. The caller supplies a TMPose-compatible
-accumulated-pose event source:
+Standalone extension or accessing global `Scratch`, the DOM, or the TurboWarp VM. The caller
+injects only the event sources it uses:
 
 ```js
 import {createAsyncInputComposition} from '@kubohiroya/turbowarp-async-input/composition';
 
-const input = createAsyncInputComposition({poseSource: tmposeComposition});
+const input = createAsyncInputComposition({
+  poseSource: tmposeComposition,
+  keySource,
+  actorTouchSource,
+});
 const selectedPose = await input.waitForPoseCandidate({
   candidates: ['help', 'jump'],
+  signal,
+});
+const selectedKey = await input.waitForKeyCandidate({
+  candidates: ['Space', 'ArrowRight'],
+  signal,
+});
+const selectedActor = await input.waitForActorTouchCandidate({
+  candidates: ['LeftDoor', 'RightDoor'],
   signal,
 });
 ```
@@ -53,10 +65,23 @@ candidate. Before subscribing, it calls `poseSource.resetAccumulatedPose()` so e
 starts a new selection session with zero accumulated score. Empty poses and non-candidates are
 ignored. Invalid events reject the wait without selecting a pose.
 
-Waits use latest-wins ownership within one composition instance. Starting a new valid wait first
-unsubscribes and rejects the previous wait with an `AbortError`; stale events cannot resolve either
-wait. An already-aborted or invalid new request never subscribes and does not replace the current
-valid wait. Abort, resolution, rejection, and `releaseAll()` all unsubscribe immediately.
+`keySource` publishes version 1 key observations. Its `code` is the exact
+`KeyboardEvent.code`; it also reports repeat, IME composition, Shift/Ctrl/Alt/Meta modifier, and
+interactive-focus state. The composition ignores any observation with one of those exclusion
+flags, then resolves the first code present in `candidates`. The source must not prevent browser
+defaults or stop event propagation.
+
+`actorTouchSource` publishes version 1 renderer-canvas pointer observations. It resolves the
+topmost drawable to a DSL actor ID by exact, unique `actorName` matching and reports primary-button,
+topmost-pick, and uniqueness flags. The composition ignores an observation unless all three flags
+are true, then resolves the first actor ID present in `candidates`.
+
+Pose, key, and actor-touch waits share latest-wins ownership within one composition instance.
+Starting a new valid wait in any mode first unsubscribes and rejects the previous wait with an
+`AbortError`; stale events cannot resolve either wait. An already-aborted, invalid, or
+missing-source request never subscribes and does not replace the current valid wait. Empty and
+duplicate candidates are rejected. Abort, resolution, rejection, and `releaseAll()` all
+unsubscribe immediately.
 
 This API implements only async-input candidate selection. A DSL controller must keep it mutually
 exclusive with an Actor ordered-pose sequence. If they conflict, the controller cancels the
