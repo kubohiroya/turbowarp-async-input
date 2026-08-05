@@ -23,6 +23,10 @@
   ],
   "type": "module",
   "exports": {
+    "./composition": {
+      "types": "./dist/types/composition.d.ts",
+      "import": "./dist/composition.js"
+    },
     "./async-input.js": "./dist/async-input.js"
   },
   "files": [
@@ -40,7 +44,11 @@
   "scripts": {
     "dev": "vite build --watch",
     "typecheck": "tsc --noEmit",
-    "build": "vite build",
+    "build": "pnpm build:extension && pnpm build:composition && pnpm build:types",
+    "build:extension": "vite build",
+    "build:composition": "vite build --config vite.composition.config.ts",
+    "build:types": "tsc --project tsconfig.build.json",
+    "types:composition:check": "tsc --project tsconfig.composition-consumer.json",
     "test": "vitest run",
     "docs": "node scripts/generate-readme.mjs",
     "docs:check": "node scripts/generate-readme.mjs --check",
@@ -48,7 +56,7 @@
     "check:dist": "node scripts/check-dist.mjs",
     "pack:check": "npm pack --dry-run --ignore-scripts",
     "release:check": "npm publish --dry-run --access public",
-    "check": "npm run typecheck && npm run test && npm run build && npm run docs:check && npm run site:check && npm run check:dist && npm run pack:check",
+    "check": "npm run typecheck && npm run test && npm run build && npm run types:composition:check && npm run docs:check && npm run site:check && npm run check:dist && npm run pack:check",
     "prepack": "npm run check"
   },
   "devDependencies": {

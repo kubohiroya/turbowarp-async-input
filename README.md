@@ -31,6 +31,40 @@ The distributed build enables key and touch blocks through the compile-time `asy
 flag in `config/feature-flags.ts`. Pose blocks additionally require the independently reversible
 `poseInput` feature flag, which remains OFF by default.
 
+## Composition API
+
+DSL controllers can import `@kubohiroya/turbowarp-async-input/composition` without registering the
+Standalone extension or accessing global `Scratch`. The caller supplies a TMPose-compatible
+accumulated-pose event source:
+
+```js
+import {createAsyncInputComposition} from '@kubohiroya/turbowarp-async-input/composition';
+
+const input = createAsyncInputComposition({poseSource: tmposeComposition});
+const selectedPose = await input.waitForPoseCandidate({
+  candidates: ['help', 'jump'],
+  signal,
+});
+```
+
+`waitForPoseCandidate` does not poll the pose source's current value. It subscribes only to version
+1 accumulated-pose changes after the wait starts and resolves with exactly one registered
+candidate. Before subscribing, it calls `poseSource.resetAccumulatedPose()` so every accepted wait
+starts a new selection session with zero accumulated score. Empty poses and non-candidates are
+ignored. Invalid events reject the wait without selecting a pose.
+
+Waits use latest-wins ownership within one composition instance. Starting a new valid wait first
+unsubscribes and rejects the previous wait with an `AbortError`; stale events cannot resolve either
+wait. An already-aborted or invalid new request never subscribes and does not replace the current
+valid wait. Abort, resolution, rejection, and `releaseAll()` all unsubscribe immediately.
+
+This API implements only async-input candidate selection. A DSL controller must keep it mutually
+exclusive with an Actor ordered-pose sequence. If they conflict, the controller cancels the
+candidate wait and gives the Actor sequence priority. The two modes do not share score or progress
+state. Scene movement, rewind, stop, live reload, and runtime release must abort the action signal;
+re-entering the same scene then starts another zero-score selection session. Standalone blocks,
+opcodes, and the default-OFF `poseInput` feature flag are unchanged.
+
 ## Extension ID compatibility
 
 This migration release uses the standards-compliant ID `kubohiroyaasyncinput`. Existing projects
