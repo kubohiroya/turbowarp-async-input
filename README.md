@@ -17,14 +17,14 @@ scoring and change event features enabled.
 The versioned npm package contains the reviewed build:
 
 ```bash
-pnpm add --save-exact @kubohiroya/turbowarp-async-input@0.2.0
+pnpm add --save-exact @kubohiroya/turbowarp-async-input@0.3.0
 ```
 
 Load `node_modules/@kubohiroya/turbowarp-async-input/dist/async-input.js`, or use the
 version-pinned CDN URL:
 
 ```text
-https://cdn.jsdelivr.net/npm/@kubohiroya/turbowarp-async-input@0.2.0/dist/async-input.js
+https://cdn.jsdelivr.net/npm/@kubohiroya/turbowarp-async-input@0.3.0/dist/async-input.js
 ```
 
 The distributed build enables key and touch blocks through the compile-time `asyncInput` feature
@@ -319,6 +319,14 @@ Removes every key, pointer, and accumulated pose binding owned by the current ta
 npm install
 npm run check
 ```
+
+## Release
+
+Release commits keep `package.json`, the pinned npm/CDN examples in this README and the two GitHub
+Pages guides, and `CHANGELOG.md` on the same version. After the release PR is merged and CI and the
+Pages deployment succeed, publish the exact package version, create the matching `v<version>` tag
+on the merge commit, and create the GitHub Release from that tag. Consumers can roll back by
+pinning the preceding npm version.
 
 The build produces `dist/async-input.js`. Commit the rebuilt file whenever extension source changes.
 

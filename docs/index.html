@@ -142,7 +142,7 @@
             <strong>Extension URL</strong>
             <p>
               Use the reviewed, version-pinned build:
-              <a href="https://cdn.jsdelivr.net/npm/@kubohiroya/turbowarp-async-input@0.2.0/dist/async-input.js"><code>@kubohiroya/turbowarp-async-input@0.2.0</code></a>.
+              <a href="https://cdn.jsdelivr.net/npm/@kubohiroya/turbowarp-async-input@0.3.0/dist/async-input.js"><code>@kubohiroya/turbowarp-async-input@0.3.0</code></a>.
             </p>
           </div>
         </div>
@@ -200,6 +200,37 @@
             <p>
               Requires TMPose with accumulated pose scoring and change events enabled. The binding
               runs when the active accumulated pose changes to the registered name.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="composition" aria-labelledby="composition-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Application integration</p>
+            <h2 id="composition-title">Wait for one candidate without registering blocks</h2>
+          </div>
+          <p>
+            Version 0.3.0 adds a side-effect-free Composition API for controllers that need to
+            await a pose, physical key, or topmost actor touch candidate.
+          </p>
+        </div>
+        <div class="two-column">
+          <article class="info-card">
+            <h3>Injected event sources</h3>
+            <p>
+              Import <code>@kubohiroya/turbowarp-async-input/composition</code> and inject only the
+              pose, key, or actor-touch sources the controller uses. Importing it does not access
+              Scratch, the DOM, or the TurboWarp VM.
+            </p>
+          </article>
+          <article class="info-card">
+            <h3>Latest wait wins</h3>
+            <p>
+              Pose, key, and actor-touch waits share one owner. Starting a valid wait aborts the
+              previous wait, and abort, completion, rejection, or <code>releaseAll()</code>
+              unsubscribes immediately.
             </p>
           </article>
         </div>
