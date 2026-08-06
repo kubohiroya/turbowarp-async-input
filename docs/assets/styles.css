@@ -99,7 +99,7 @@ main,
 .app-bar-inner {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
-  min-height: 4rem;
+  min-height: 4.25rem;
   align-items: center;
   gap: 1rem;
 }
@@ -1008,12 +1008,11 @@ details p {
 
   .app-bar-inner {
     grid-template-columns: auto minmax(0, 1fr);
-    min-height: 4rem;
+    min-height: 4.25rem;
     gap: 0.5rem;
   }
 
-  .app-bar-label,
-  .app-bar-github {
+  .app-bar-label {
     display: none;
   }
 
