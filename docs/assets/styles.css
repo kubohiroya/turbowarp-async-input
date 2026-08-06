@@ -25,10 +25,12 @@
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
 }
 
 body {
   margin: 0;
+  overflow-x: clip;
   color: var(--ink);
   background:
     radial-gradient(circle at 90% 5%, rgba(47, 157, 143, 0.13), transparent 24rem),
@@ -45,6 +47,12 @@ a {
 
 a:hover {
   color: var(--brand);
+}
+
+a:focus-visible {
+  border-radius: 0.25rem;
+  outline: 3px solid var(--brand);
+  outline-offset: 3px;
 }
 
 code {
@@ -71,44 +79,48 @@ code {
   top: 0;
 }
 
-.site-header {
+.app-bar {
   position: sticky;
   top: 0;
   z-index: 20;
   border-bottom: 1px solid rgba(207, 227, 223, 0.8);
   background: rgba(251, 254, 253, 0.9);
+  -webkit-backdrop-filter: blur(16px);
   backdrop-filter: blur(16px);
 }
 
-.header-inner,
+.app-bar-inner,
 main,
 .footer-inner {
   width: min(1120px, calc(100% - 2rem));
   margin: 0 auto;
 }
 
-.header-inner {
-  display: flex;
-  min-height: 68px;
+.app-bar-inner {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  min-height: 4rem;
   align-items: center;
-  justify-content: space-between;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
-.brand {
+.app-bar-brand {
   display: inline-flex;
   align-items: center;
-  gap: 0.7rem;
+  gap: 0.65rem;
+  min-width: 0;
   color: var(--ink);
   font-weight: 800;
   letter-spacing: -0.02em;
   text-decoration: none;
+  white-space: nowrap;
 }
 
-.brand-mark {
+.app-bar-mark {
   display: grid;
-  width: 38px;
-  height: 38px;
+  width: 2rem;
+  height: 2rem;
+  flex: none;
   place-items: center;
   border-radius: 12px 12px 12px 4px;
   color: white;
@@ -117,23 +129,68 @@ main,
   font-weight: 900;
 }
 
-.header-links {
+.app-bar-sections {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  justify-content: center;
+  gap: 1rem;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 0.92rem;
 }
 
-.header-links a {
-  padding: 0.42rem 0.72rem;
+.app-bar-sections a {
+  color: var(--muted);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.app-bar-sections a:hover {
+  color: var(--ink);
+}
+
+.app-bar-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.app-bar-github {
+  padding: 0.38rem 0.58rem;
+  border-radius: 0.65rem;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 750;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.app-bar-github:hover {
+  color: var(--ink);
+  background: var(--brand-soft);
+}
+
+.app-bar-languages {
+  display: inline-flex;
+  padding: 0.2rem;
+  border: 1px solid var(--line);
+  border-radius: 99rem;
+  background: var(--card);
+}
+
+.app-bar-languages a {
+  padding: 0.26rem 0.6rem;
   border-radius: 999px;
   color: var(--muted);
-  font-size: 0.9rem;
+  font-size: 0.82rem;
   font-weight: 700;
   text-decoration: none;
 }
 
-.header-links a:hover,
-.header-links a[aria-current="page"] {
+.app-bar-languages a:hover,
+.app-bar-languages a[aria-current="page"] {
   color: var(--brand-dark);
   background: var(--brand-soft);
 }
@@ -895,6 +952,10 @@ details p {
 }
 
 @media (max-width: 900px) {
+  .app-bar-sections {
+    display: none;
+  }
+
   .hero {
     grid-template-columns: 1fr;
     padding-top: 3.5rem;
@@ -939,13 +1000,30 @@ details p {
     font-size: 15px;
   }
 
-  .header-inner {
-    min-height: 60px;
+  .app-bar-inner,
+  main,
+  .footer-inner {
+    width: min(100% - 1.2rem, 1120px);
   }
 
-  .brand-label,
-  .header-links .source-link {
+  .app-bar-inner {
+    grid-template-columns: auto minmax(0, 1fr);
+    min-height: 4rem;
+    gap: 0.5rem;
+  }
+
+  .app-bar-label,
+  .app-bar-github {
     display: none;
+  }
+
+  .app-bar-actions {
+    grid-column: 2;
+  }
+
+  .app-bar-languages a {
+    padding-inline: 0.5rem;
+    font-size: 0.78rem;
   }
 
   .hero {
@@ -1031,7 +1109,7 @@ details p {
 }
 
 @media print {
-  .site-header,
+  .app-bar,
   .hero-actions {
     display: none;
   }
