@@ -1,6 +1,6 @@
 {
   "name": "@kubohiroya/turbowarp-async-input",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "A target-scoped asynchronous keyboard, pointer, and accumulated pose input extension for TurboWarp.",
   "author": "Hiroya Kubo <hiroya@cuc.ac.jp>",
   "license": "MPL-2.0",
@@ -31,6 +31,7 @@
   },
   "files": [
     "dist/",
+    "CHANGELOG.md",
     "README.md",
     "LICENSE"
   ],

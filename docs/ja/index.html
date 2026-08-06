@@ -142,7 +142,7 @@
             <strong>拡張機能のURL</strong>
             <p>
               レビュー済みのバージョン固定ビルドを使用してください：
-              <a href="https://cdn.jsdelivr.net/npm/@kubohiroya/turbowarp-async-input@0.2.0/dist/async-input.js"><code>@kubohiroya/turbowarp-async-input@0.2.0</code></a>
+              <a href="https://cdn.jsdelivr.net/npm/@kubohiroya/turbowarp-async-input@0.3.0/dist/async-input.js"><code>@kubohiroya/turbowarp-async-input@0.3.0</code></a>
             </p>
           </div>
         </div>
@@ -200,6 +200,36 @@
             <p>
               累積ポーズのスコアリングと変更イベントを有効にしたTMPoseが必要です。有効な累積
               ポーズ名が登録名に変わったときに実行されます。
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="composition" aria-labelledby="composition-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">アプリケーション統合</p>
+            <h2 id="composition-title">ブロック登録なしで候補入力を待つ</h2>
+          </div>
+          <p>
+            バージョン0.3.0では、ポーズ、物理キー、最前面actorのタッチ候補を待機する
+            副作用のないComposition APIを追加しました。
+          </p>
+        </div>
+        <div class="two-column">
+          <article class="info-card">
+            <h3>イベント元を注入</h3>
+            <p>
+              <code>@kubohiroya/turbowarp-async-input/composition</code>をimportし、利用する
+              pose、key、actor-touchのイベント元だけを渡します。import時にScratch、DOM、
+              TurboWarp VMへアクセスしません。
+            </p>
+          </article>
+          <article class="info-card">
+            <h3>最新の待機を優先</h3>
+            <p>
+              3種類の待機は1つの所有権を共有します。有効な待機を始めると前の待機を中止し、
+              中止、完了、失敗、<code>releaseAll()</code>で直ちに購読を解除します。
             </p>
           </article>
         </div>
