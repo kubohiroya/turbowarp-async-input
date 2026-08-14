@@ -49,6 +49,7 @@ interface ScratchExtensionInfo {
   id: string;
   name: string;
   docsURI: string;
+  blockIconURI: string;
   color1: string;
   color2: string;
   color3: string;
