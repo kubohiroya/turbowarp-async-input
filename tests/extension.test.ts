@@ -1,6 +1,11 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {FEATURE_FLAGS} from '../config/feature-flags.js';
-import {AsyncInputExtension, DOCS_URI, isEditableTarget} from '../src/extension.js';
+import {
+  AsyncInputExtension,
+  BLOCK_ICON_URI,
+  DOCS_URI,
+  isEditableTarget
+} from '../src/extension.js';
 
 type TestListener = (event: Record<string, unknown>) => void;
 
@@ -167,6 +172,11 @@ describe('Async Input extension', () => {
     expect(FEATURE_FLAGS.poseInput).toBe(false);
     const extensionInfo = new AsyncInputExtension().getInfo();
     expect(extensionInfo.docsURI).toBe(DOCS_URI);
+    expect(extensionInfo.blockIconURI).toBe(BLOCK_ICON_URI);
+    const iconSvg = decodeURIComponent(BLOCK_ICON_URI.slice('data:image/svg+xml,'.length));
+    expect(iconSvg).toContain('viewBox="0 0 64 64"');
+    expect(iconSvg).toContain('<circle cx="45" cy="32" r="13"/>');
+    expect(iconSvg).not.toContain('<rect');
     expect(extensionInfo.blocks.map((block) => block.opcode))
       .toEqual([
         'listenForKey',

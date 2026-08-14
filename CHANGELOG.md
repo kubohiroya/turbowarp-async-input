@@ -2,6 +2,17 @@
 
 Notable changes to this project are recorded here. This project follows Semantic Versioning.
 
+## [0.4.0] - 2026-08-14
+
+### Added
+
+- Self-contained SVG block icon for identifying Async Input blocks in TurboWarp.
+
+### Compatibility
+
+- Block opcodes, feature flags, and runtime behavior are unchanged.
+- Consumers can roll back by pinning `@kubohiroya/turbowarp-async-input@0.3.0`.
+
 ## [0.3.0] - 2026-08-06
 
 ### Added
@@ -27,5 +38,6 @@ Notable changes to this project are recorded here. This project follows Semantic
 - Bilingual GitHub Pages user guide.
 - Versioned npm and CDN installation guidance.
 
+[0.4.0]: https://github.com/kubohiroya/turbowarp-async-input/releases/tag/v0.4.0
 [0.3.0]: https://github.com/kubohiroya/turbowarp-async-input/releases/tag/v0.3.0
 [0.2.0]: https://github.com/kubohiroya/turbowarp-async-input/releases/tag/v0.2.0
