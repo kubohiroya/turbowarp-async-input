@@ -1,12 +1,19 @@
 lockfileVersion: '9.0'
 
 settings:
-  autoInstallPeers: false
+  autoInstallPeers: true
   excludeLinksFromLockfile: false
 
 importers:
 
   .:
+    dependencies:
+      '@kubohiroya/turbowarp-jsqr':
+        specifier: '>=0.1.0 <1'
+        version: 0.1.0
+      '@kubohiroya/turbowarp-webusb-pasori':
+        specifier: '>=0.1.0 <1'
+        version: 0.1.0
     devDependencies:
       '@kubohiroya/vite-plugin-turbowarp-extension':
         specifier: 0.1.0
@@ -181,6 +188,17 @@ packages:
 
   '@jridgewell/sourcemap-codec@1.5.5':
     resolution: {integrity: sha512-cYQ9310grqxueWbl+WuIUIaiUaDcj7WOq5fVhEljNVgRfOUhY9fy2zTvfoqWsnebh8Sl70VScFbICvJnLKB0Og==}
+
+  '@kubohiroya/turbowarp-jsqr@0.1.0':
+    resolution: {integrity: sha512-XKSKIoUU72wIJjQH3CpQyTRPl5ZAmT5wWLajaZaFoffhoHQEh9uw0+D+RvO2QzdDJFKM0nJC60/CX1JMZw8c0g==}
+    peerDependencies:
+      '@kubohiroya/turbowarp-camera-source': '>=0.1.0 <1'
+    peerDependenciesMeta:
+      '@kubohiroya/turbowarp-camera-source':
+        optional: true
+
+  '@kubohiroya/turbowarp-webusb-pasori@0.1.0':
+    resolution: {integrity: sha512-mBGOUutYSFO4Ss0j9D5BX/u9wn53mjUUkfH8hpnqa8pfhTonbm52P+oqRDw/I070nb+btJpBP0o4vu2T1/tpHQ==}
 
   '@kubohiroya/vite-plugin-turbowarp-extension@0.1.0':
     resolution: {integrity: sha512-CyD+b/dS1a+zY5HzWOl+PZksocE3BL4HKSB1V4PSJgP7hvkxhjmcSlbQWAm6t0yKnSgVgTZlBI+wvUXa4BpzrQ==}
@@ -406,6 +424,9 @@ packages:
     resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
     os: [darwin]
+
+  jsqr@1.4.0:
+    resolution: {integrity: sha512-dxLob7q65Xg2DvstYkRpkYtmKm2sPJ9oFhrhmudT1dZvNFFTlroai3AWSpLey/w5vMcLBXRgOJsbXpdN9HzU/A==}
 
   magic-string@0.30.21:
     resolution: {integrity: sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ==}
@@ -639,6 +660,12 @@ snapshots:
 
   '@jridgewell/sourcemap-codec@1.5.5': {}
 
+  '@kubohiroya/turbowarp-jsqr@0.1.0':
+    dependencies:
+      jsqr: 1.4.0
+
+  '@kubohiroya/turbowarp-webusb-pasori@0.1.0': {}
+
   '@kubohiroya/vite-plugin-turbowarp-extension@0.1.0(vite@7.3.6)':
     dependencies:
       vite: 7.3.6
@@ -819,6 +846,8 @@ snapshots:
 
   fsevents@2.3.3:
     optional: true
+
+  jsqr@1.4.0: {}
 
   magic-string@0.30.21:
     dependencies:

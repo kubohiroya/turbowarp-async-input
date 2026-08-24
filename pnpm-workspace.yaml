@@ -2,3 +2,5 @@ allowBuilds:
   esbuild: true
 minimumReleaseAgeExclude:
   - '@kubohiroya/vite-plugin-turbowarp-extension@0.1.0'
+  - '@kubohiroya/turbowarp-jsqr@0.1.0'
+  - '@kubohiroya/turbowarp-webusb-pasori@0.1.0'
