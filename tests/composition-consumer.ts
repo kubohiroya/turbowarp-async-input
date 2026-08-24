@@ -66,10 +66,12 @@ const selectedActor: Promise<string> = input.waitForActorTouchCandidate({
   candidates: ['Hero']
 });
 const selectedQr: Promise<string> = input.waitForQrCandidate({
-  candidates: ['qr:next']
+  candidates: ['qr:next'],
+  cameraId: 'qr'
 });
 const selectedNfc: Promise<string> = input.waitForNfcCandidate({
-  candidates: ['0123456789ABCDEF']
+  candidates: ['0123456789ABCDEF'],
+  readerId: 'right'
 });
 const event: AccumulatedPoseChangedEventV1 = {
   version: 1,

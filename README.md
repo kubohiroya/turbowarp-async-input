@@ -61,10 +61,12 @@ const selectedActor = await input.waitForActorTouchCandidate({
 });
 const selectedQr = await input.waitForQrCandidate({
   candidates: ['qr:next'],
+  cameraId: 'qr',
   signal,
 });
 const selectedNfc = await input.waitForNfcCandidate({
   candidates: ['0123456789ABCDEF'],
+  readerId: 'right',
   signal,
 });
 ```
@@ -86,11 +88,12 @@ topmost drawable to a DSL actor ID by exact, unique `actorName` matching and rep
 topmost-pick, and uniqueness flags. The composition ignores an observation unless all three flags
 are true, then resolves the first actor ID present in `candidates`.
 
-`qrSource` provides `waitForQrText({signal})`, typically from
-`@kubohiroya/turbowarp-jsqr`. `nfcSource` provides `waitForNfcIdm({signal})`, typically from
-`@kubohiroya/turbowarp-webusb-pasori`. The composition accepts only values present in
-`candidates`; non-candidate scans keep waiting until the source returns another value or the signal
-is aborted.
+`qrSource` provides `waitForQrText({cameraId, signal})`, typically from
+`@kubohiroya/turbowarp-jsqr`. `cameraId` selects a named Camera Source stream such as `qr`.
+`nfcSource` provides `waitForNfcIdm({readerId, signal})`, typically from
+`@kubohiroya/turbowarp-webusb-pasori`. `readerId` selects a named PaSoRi such as `left` or
+`right`. The composition accepts only values present in `candidates`; non-candidate scans keep
+waiting until the source returns another value or the signal is aborted.
 
 Pose, key, actor-touch, QR, and NFC waits share latest-wins ownership within one composition instance.
 Starting a new valid wait in any mode first unsubscribes and rejects the previous wait with an

@@ -205,22 +205,34 @@ describe('Async Input composition API', () => {
   });
 
   it('selects QR and NFC promise candidates', async () => {
+    const qrOptions: Array<{cameraId?: string; signal?: AbortSignal}> = [];
+    const nfcOptions: Array<{readerId?: string; signal?: AbortSignal}> = [];
     const input = createAsyncInputComposition({
       qrSource: {
-        async waitForQrText() {
+        async waitForQrText(options) {
+          qrOptions.push(options);
           return 'qr:next';
         }
       },
       nfcSource: {
-        async waitForNfcIdm() {
+        async waitForNfcIdm(options) {
+          nfcOptions.push(options);
           return '0123456789ABCDEF';
         }
       }
     });
 
-    await expect(input.waitForQrCandidate({candidates: ['qr:next']})).resolves.toBe('qr:next');
-    await expect(input.waitForNfcCandidate({candidates: ['0123456789ABCDEF']}))
+    await expect(input.waitForQrCandidate({
+      candidates: ['qr:next'],
+      cameraId: 'qr'
+    })).resolves.toBe('qr:next');
+    await expect(input.waitForNfcCandidate({
+      candidates: ['0123456789ABCDEF'],
+      readerId: 'right'
+    }))
       .resolves.toBe('0123456789ABCDEF');
+    expect(qrOptions[0]?.cameraId).toBe('qr');
+    expect(nfcOptions[0]?.readerId).toBe('right');
   });
 
   it('aborts QR promise waits through the supplied AbortSignal', async () => {

@@ -10,6 +10,8 @@ Notable changes to this project are recorded here. This project follows Semantic
   `@kubohiroya/turbowarp-webusb-pasori`.
 - `waitForQrCandidate()` and `waitForNfcCandidate()` with AbortSignal support and latest-wins
   cancellation ownership.
+- `cameraId` forwarding for QR waits and `readerId` forwarding for NFC waits, enabling separate
+  camera roles and multiple named PaSoRi readers.
 
 ### Compatibility
 

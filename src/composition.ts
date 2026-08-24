@@ -80,20 +80,22 @@ export interface WaitForActorTouchCandidateOptions {
 
 export interface WaitForQrCandidateOptions {
   readonly candidates: ReadonlyArray<string>;
+  readonly cameraId?: string;
   readonly signal?: AbortSignal;
 }
 
 export interface WaitForNfcCandidateOptions {
   readonly candidates: ReadonlyArray<string>;
+  readonly readerId?: string;
   readonly signal?: AbortSignal;
 }
 
 export interface QrCandidateSource {
-  waitForQrText(options: {signal?: AbortSignal}): Promise<string>;
+  waitForQrText(options: {cameraId?: string; signal?: AbortSignal}): Promise<string>;
 }
 
 export interface NfcCandidateSource {
-  waitForNfcIdm(options: {signal?: AbortSignal}): Promise<string>;
+  waitForNfcIdm(options: {readerId?: string; signal?: AbortSignal}): Promise<string>;
 }
 
 export interface AsyncInputComposition {
@@ -233,12 +235,15 @@ function validateSignal(value: unknown): AbortSignal | undefined {
 function validateWaitOptions(
   value: unknown,
   methodName: string,
-  candidateKind: string
+  candidateKind: string,
+  extraKeys: ReadonlySet<string> = new Set()
 ): ValidatedWaitOptions {
   if (
     !isRecord(value) ||
     !Object.hasOwn(value, 'candidates') ||
-    Object.keys(value).some((key) => key !== 'candidates' && key !== 'signal') ||
+    Object.keys(value).some(
+      (key) => key !== 'candidates' && key !== 'signal' && !extraKeys.has(key)
+    ) ||
     !Array.isArray(value.candidates) ||
     value.candidates.length === 0
   ) {
@@ -265,6 +270,15 @@ function validateWaitOptions(
     candidates.add(normalized);
   }
   return {candidates, signal: validateSignal(value.signal)};
+}
+
+function validateOptionalName(value: unknown, fieldName: string): string | undefined {
+  if (value === undefined) return undefined;
+  if (typeof value !== 'string') {
+    throw compositionError('ASYNC-INPUT-COMPOSITION-001', `${fieldName} must be a string.`);
+  }
+  const normalized = value.trim();
+  return normalized || undefined;
 }
 
 function parsePoseEvent(value: unknown): AccumulatedPoseChangedEventV1 | null {
@@ -663,24 +677,36 @@ export function createAsyncInputComposition(
     waitForQrCandidate(waitOptions) {
       const inactive = requireActive();
       if (inactive) return Promise.reject(inactive);
-      const validated = validateWaitOptions(waitOptions, 'waitForQrCandidate', 'QR');
+      const validated = validateWaitOptions(
+        waitOptions,
+        'waitForQrCandidate',
+        'QR',
+        new Set(['cameraId'])
+      );
       const preAborted = rejectPreAborted('QR', validated);
       if (preAborted) return preAborted;
       if (!qrSource) return unavailableSource('QR');
+      const cameraId = validateOptionalName(waitOptions.cameraId, 'cameraId');
       return waitForPromiseCandidate('QR', validated, (sourceOptions) =>
-        qrSource.waitForQrText(sourceOptions)
+        qrSource.waitForQrText(cameraId === undefined ? sourceOptions : {...sourceOptions, cameraId})
       );
     },
 
     waitForNfcCandidate(waitOptions) {
       const inactive = requireActive();
       if (inactive) return Promise.reject(inactive);
-      const validated = validateWaitOptions(waitOptions, 'waitForNfcCandidate', 'NFC');
+      const validated = validateWaitOptions(
+        waitOptions,
+        'waitForNfcCandidate',
+        'NFC',
+        new Set(['readerId'])
+      );
       const preAborted = rejectPreAborted('NFC', validated);
       if (preAborted) return preAborted;
       if (!nfcSource) return unavailableSource('NFC');
+      const readerId = validateOptionalName(waitOptions.readerId, 'readerId');
       return waitForPromiseCandidate('NFC', validated, (sourceOptions) =>
-        nfcSource.waitForNfcIdm(sourceOptions)
+        nfcSource.waitForNfcIdm(readerId === undefined ? sourceOptions : {...sourceOptions, readerId})
       );
     },
 

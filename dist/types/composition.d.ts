@@ -62,19 +62,23 @@ export interface WaitForActorTouchCandidateOptions {
 }
 export interface WaitForQrCandidateOptions {
     readonly candidates: ReadonlyArray<string>;
+    readonly cameraId?: string;
     readonly signal?: AbortSignal;
 }
 export interface WaitForNfcCandidateOptions {
     readonly candidates: ReadonlyArray<string>;
+    readonly readerId?: string;
     readonly signal?: AbortSignal;
 }
 export interface QrCandidateSource {
     waitForQrText(options: {
+        cameraId?: string;
         signal?: AbortSignal;
     }): Promise<string>;
 }
 export interface NfcCandidateSource {
     waitForNfcIdm(options: {
+        readerId?: string;
         signal?: AbortSignal;
     }): Promise<string>;
 }

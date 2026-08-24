@@ -236,8 +236,8 @@
             <h2 id="composition-title">Wait for one candidate without registering blocks</h2>
           </div>
           <p>
-            Version 0.3.0 adds a side-effect-free Composition API for controllers that need to
-            await a pose, physical key, or topmost actor touch candidate.
+            The side-effect-free Composition API lets controllers await a pose, physical key,
+            topmost actor touch, QR value, or NFC IDm candidate.
           </p>
         </div>
         <div class="two-column">
@@ -245,15 +245,16 @@
             <h3>Injected event sources</h3>
             <p>
               Import <code>@kubohiroya/turbowarp-async-input/composition</code> and inject only the
-              pose, key, or actor-touch sources the controller uses. Importing it does not access
-              Scratch, the DOM, or the TurboWarp VM.
+              pose, key, actor-touch, QR, or NFC sources the controller uses. QR waits can forward
+              <code>cameraId</code>; NFC waits can forward <code>readerId</code>. Importing it does
+              not access Scratch, the DOM, or the TurboWarp VM.
             </p>
           </article>
           <article class="info-card">
             <h3>Latest wait wins</h3>
             <p>
-              Pose, key, and actor-touch waits share one owner. Starting a valid wait aborts the
-              previous wait, and abort, completion, rejection, or <code>releaseAll()</code>
+              Pose, key, actor-touch, QR, and NFC waits share one owner. Starting a valid wait
+              aborts the previous wait, and abort, completion, rejection, or <code>releaseAll()</code>
               unsubscribes immediately.
             </p>
           </article>

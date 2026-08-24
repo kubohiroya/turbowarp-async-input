@@ -235,8 +235,8 @@
             <h2 id="composition-title">ブロック登録なしで候補入力を待つ</h2>
           </div>
           <p>
-            バージョン0.3.0では、ポーズ、物理キー、最前面actorのタッチ候補を待機する
-            副作用のないComposition APIを追加しました。
+            副作用のないComposition APIでは、ポーズ、物理キー、最前面actorのタッチ、QR値、
+            NFC IDmの候補を待機できます。
           </p>
         </div>
         <div class="two-column">
@@ -244,15 +244,17 @@
             <h3>イベント元を注入</h3>
             <p>
               <code>@kubohiroya/turbowarp-async-input/composition</code>をimportし、利用する
-              pose、key、actor-touchのイベント元だけを渡します。import時にScratch、DOM、
-              TurboWarp VMへアクセスしません。
+              pose、key、actor-touch、QR、NFCのイベント元だけを渡します。QR待機では
+              <code>cameraId</code>を、NFC待機では<code>readerId</code>を転送できます。
+              import時にScratch、DOM、TurboWarp VMへアクセスしません。
             </p>
           </article>
           <article class="info-card">
             <h3>最新の待機を優先</h3>
             <p>
-              3種類の待機は1つの所有権を共有します。有効な待機を始めると前の待機を中止し、
-              中止、完了、失敗、<code>releaseAll()</code>で直ちに購読を解除します。
+              ポーズ、キー、actor-touch、QR、NFCの待機は1つの所有権を共有します。有効な
+              待機を始めると前の待機を中止し、中止、完了、失敗、<code>releaseAll()</code>で
+              直ちに購読を解除します。
             </p>
           </article>
         </div>

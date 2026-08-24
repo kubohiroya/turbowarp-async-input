@@ -55,8 +55,10 @@ function validateSignal(value) {
   }
   return value;
 }
-function validateWaitOptions(value, methodName, candidateKind) {
-  if (!isRecord(value) || !Object.hasOwn(value, "candidates") || Object.keys(value).some((key) => key !== "candidates" && key !== "signal") || !Array.isArray(value.candidates) || value.candidates.length === 0) {
+function validateWaitOptions(value, methodName, candidateKind, extraKeys = /* @__PURE__ */ new Set()) {
+  if (!isRecord(value) || !Object.hasOwn(value, "candidates") || Object.keys(value).some(
+    (key) => key !== "candidates" && key !== "signal" && !extraKeys.has(key)
+  ) || !Array.isArray(value.candidates) || value.candidates.length === 0) {
     throw compositionError(
       "ASYNC-INPUT-COMPOSITION-001",
       `${methodName} requires a non-empty candidates array.`
@@ -80,6 +82,14 @@ function validateWaitOptions(value, methodName, candidateKind) {
     candidates.add(normalized);
   }
   return { candidates, signal: validateSignal(value.signal) };
+}
+function validateOptionalName(value, fieldName) {
+  if (value === void 0) return void 0;
+  if (typeof value !== "string") {
+    throw compositionError("ASYNC-INPUT-COMPOSITION-001", `${fieldName} must be a string.`);
+  }
+  const normalized = value.trim();
+  return normalized || void 0;
 }
 function parsePoseEvent(value) {
   if (!isRecord(value)) return null;
@@ -379,27 +389,39 @@ function createAsyncInputComposition(options) {
     waitForQrCandidate(waitOptions) {
       const inactive = requireActive();
       if (inactive) return Promise.reject(inactive);
-      const validated = validateWaitOptions(waitOptions, "waitForQrCandidate", "QR");
+      const validated = validateWaitOptions(
+        waitOptions,
+        "waitForQrCandidate",
+        "QR",
+        /* @__PURE__ */ new Set(["cameraId"])
+      );
       const preAborted = rejectPreAborted("QR", validated);
       if (preAborted) return preAborted;
       if (!qrSource) return unavailableSource("QR");
+      const cameraId = validateOptionalName(waitOptions.cameraId, "cameraId");
       return waitForPromiseCandidate(
         "QR",
         validated,
-        (sourceOptions) => qrSource.waitForQrText(sourceOptions)
+        (sourceOptions) => qrSource.waitForQrText(cameraId === void 0 ? sourceOptions : { ...sourceOptions, cameraId })
       );
     },
     waitForNfcCandidate(waitOptions) {
       const inactive = requireActive();
       if (inactive) return Promise.reject(inactive);
-      const validated = validateWaitOptions(waitOptions, "waitForNfcCandidate", "NFC");
+      const validated = validateWaitOptions(
+        waitOptions,
+        "waitForNfcCandidate",
+        "NFC",
+        /* @__PURE__ */ new Set(["readerId"])
+      );
       const preAborted = rejectPreAborted("NFC", validated);
       if (preAborted) return preAborted;
       if (!nfcSource) return unavailableSource("NFC");
+      const readerId = validateOptionalName(waitOptions.readerId, "readerId");
       return waitForPromiseCandidate(
         "NFC",
         validated,
-        (sourceOptions) => nfcSource.waitForNfcIdm(sourceOptions)
+        (sourceOptions) => nfcSource.waitForNfcIdm(readerId === void 0 ? sourceOptions : { ...sourceOptions, readerId })
       );
     },
     releaseAll() {
