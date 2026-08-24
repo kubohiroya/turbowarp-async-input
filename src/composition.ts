@@ -78,12 +78,32 @@ export interface WaitForActorTouchCandidateOptions {
   readonly signal?: AbortSignal;
 }
 
+export interface WaitForQrCandidateOptions {
+  readonly candidates: ReadonlyArray<string>;
+  readonly signal?: AbortSignal;
+}
+
+export interface WaitForNfcCandidateOptions {
+  readonly candidates: ReadonlyArray<string>;
+  readonly signal?: AbortSignal;
+}
+
+export interface QrCandidateSource {
+  waitForQrText(options: {signal?: AbortSignal}): Promise<string>;
+}
+
+export interface NfcCandidateSource {
+  waitForNfcIdm(options: {signal?: AbortSignal}): Promise<string>;
+}
+
 export interface AsyncInputComposition {
   waitForPoseCandidate(options: WaitForPoseCandidateOptions): Promise<string>;
   waitForKeyCandidate(options: WaitForKeyCandidateOptions): Promise<string>;
   waitForActorTouchCandidate(
     options: WaitForActorTouchCandidateOptions
   ): Promise<string>;
+  waitForQrCandidate(options: WaitForQrCandidateOptions): Promise<string>;
+  waitForNfcCandidate(options: WaitForNfcCandidateOptions): Promise<string>;
   releaseAll(): void;
 }
 
@@ -91,9 +111,11 @@ export interface AsyncInputCompositionOptions {
   readonly poseSource?: AccumulatedPoseSource;
   readonly keySource?: KeyCandidateSource;
   readonly actorTouchSource?: ActorTouchCandidateSource;
+  readonly qrSource?: QrCandidateSource;
+  readonly nfcSource?: NfcCandidateSource;
 }
 
-type WaitKind = 'pose' | 'key' | 'actor touch';
+type WaitKind = 'pose' | 'key' | 'actor touch' | 'QR' | 'NFC';
 
 interface ValidatedWaitOptions {
   readonly candidates: ReadonlySet<string>;
@@ -111,6 +133,12 @@ interface PendingWait {
   unsubscribe: (() => void) | null;
   abortListener: (() => void) | null;
   lastPoseName: string | null;
+  settled: boolean;
+}
+
+interface PendingPromiseWait {
+  readonly kind: WaitKind;
+  readonly controller: AbortController;
   settled: boolean;
 }
 
@@ -173,6 +201,20 @@ function validateActorTouchSource(value: unknown): ActorTouchCandidateSource {
     );
   }
   return value as unknown as ActorTouchCandidateSource;
+}
+
+function validateQrSource(value: unknown): QrCandidateSource {
+  if (!isRecord(value) || typeof value.waitForQrText !== 'function') {
+    throw new TypeError('qrSource must provide waitForQrText(options).');
+  }
+  return value as unknown as QrCandidateSource;
+}
+
+function validateNfcSource(value: unknown): NfcCandidateSource {
+  if (!isRecord(value) || typeof value.waitForNfcIdm !== 'function') {
+    throw new TypeError('nfcSource must provide waitForNfcIdm(options).');
+  }
+  return value as unknown as NfcCandidateSource;
 }
 
 function validateSignal(value: unknown): AbortSignal | undefined {
@@ -298,9 +340,16 @@ export function createAsyncInputComposition(
   const actorTouchSource = options.actorTouchSource === undefined
     ? null
     : validateActorTouchSource(options.actorTouchSource);
+  const qrSource = options.qrSource === undefined
+    ? null
+    : validateQrSource(options.qrSource);
+  const nfcSource = options.nfcSource === undefined
+    ? null
+    : validateNfcSource(options.nfcSource);
   let released = false;
   let generation = 0;
   let pending: PendingWait | null = null;
+  let pendingPromise: PendingPromiseWait | null = null;
 
   function finish(
     wait: PendingWait,
@@ -337,6 +386,10 @@ export function createAsyncInputComposition(
 
   function cancelPending(code: string, message: string): void {
     if (pending) finish(pending, {error: abortError(code, message)});
+    if (pendingPromise && !pendingPromise.settled) {
+      pendingPromise.controller.abort();
+      pendingPromise = null;
+    }
   }
 
   function unavailableSource(kind: WaitKind): Promise<string> {
@@ -444,6 +497,48 @@ export function createAsyncInputComposition(
           )
         )
       : null;
+  }
+
+  async function waitForPromiseCandidate(
+    kind: WaitKind,
+    validated: ValidatedWaitOptions,
+    source: (options: {signal?: AbortSignal}) => Promise<string>
+  ): Promise<string> {
+    cancelPending(
+      'ASYNC-INPUT-COMPOSITION-004',
+      `${kind} candidate wait was superseded by a newer wait.`
+    );
+    const activeGeneration = ++generation;
+    const controller = new AbortController();
+    const promiseWait: PendingPromiseWait = {
+      kind,
+      controller,
+      settled: false
+    };
+    pendingPromise = promiseWait;
+    const abort = (): void => controller.abort();
+    validated.signal?.addEventListener('abort', abort, {once: true});
+    try {
+      while (!controller.signal.aborted) {
+        const candidate = String(await source({signal: controller.signal})).trim();
+        if (
+          pendingPromise !== promiseWait ||
+          promiseWait.settled ||
+          activeGeneration !== generation
+        ) {
+          throw abortError(
+            'ASYNC-INPUT-COMPOSITION-004',
+            `${kind} candidate wait was superseded by a newer wait.`
+          );
+        }
+        if (validated.candidates.has(candidate)) return candidate;
+      }
+      throw abortError('ASYNC-INPUT-COMPOSITION-004', `${kind} candidate wait was aborted.`);
+    } finally {
+      promiseWait.settled = true;
+      validated.signal?.removeEventListener('abort', abort);
+      if (pendingPromise === promiseWait) pendingPromise = null;
+    }
   }
 
   const composition: AsyncInputComposition = {
@@ -563,6 +658,30 @@ export function createAsyncInputComposition(
           return event.actorId;
         }
       });
+    },
+
+    waitForQrCandidate(waitOptions) {
+      const inactive = requireActive();
+      if (inactive) return Promise.reject(inactive);
+      const validated = validateWaitOptions(waitOptions, 'waitForQrCandidate', 'QR');
+      const preAborted = rejectPreAborted('QR', validated);
+      if (preAborted) return preAborted;
+      if (!qrSource) return unavailableSource('QR');
+      return waitForPromiseCandidate('QR', validated, (sourceOptions) =>
+        qrSource.waitForQrText(sourceOptions)
+      );
+    },
+
+    waitForNfcCandidate(waitOptions) {
+      const inactive = requireActive();
+      if (inactive) return Promise.reject(inactive);
+      const validated = validateWaitOptions(waitOptions, 'waitForNfcCandidate', 'NFC');
+      const preAborted = rejectPreAborted('NFC', validated);
+      if (preAborted) return preAborted;
+      if (!nfcSource) return unavailableSource('NFC');
+      return waitForPromiseCandidate('NFC', validated, (sourceOptions) =>
+        nfcSource.waitForNfcIdm(sourceOptions)
+      );
     },
 
     releaseAll() {

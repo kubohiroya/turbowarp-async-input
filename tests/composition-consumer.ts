@@ -9,7 +9,9 @@ import {
   type AsyncInputComposition,
   type KeyCandidateEventV1,
   type KeyCandidateListener,
-  type KeyCandidateSource
+  type KeyCandidateSource,
+  type NfcCandidateSource,
+  type QrCandidateSource
 } from '@kubohiroya/turbowarp-async-input/composition';
 
 declare const subscribe: (listener: AccumulatedPoseListener) => () => void;
@@ -33,10 +35,22 @@ const keySource: KeyCandidateSource = {subscribeKeyCandidate: subscribeKey};
 const actorTouchSource: ActorTouchCandidateSource = {
   subscribeActorTouchCandidate: subscribeActorTouch
 };
+const qrSource: QrCandidateSource = {
+  async waitForQrText() {
+    return 'qr:next';
+  }
+};
+const nfcSource: NfcCandidateSource = {
+  async waitForNfcIdm() {
+    return '0123456789ABCDEF';
+  }
+};
 const input: AsyncInputComposition = createAsyncInputComposition({
   poseSource,
   keySource,
-  actorTouchSource
+  actorTouchSource,
+  qrSource,
+  nfcSource
 });
 const directInput: AsyncInputComposition = createAsyncInputComposition({
   poseSource: tmposeCompatibleSource
@@ -50,6 +64,12 @@ const selectedKey: Promise<string> = input.waitForKeyCandidate({
 });
 const selectedActor: Promise<string> = input.waitForActorTouchCandidate({
   candidates: ['Hero']
+});
+const selectedQr: Promise<string> = input.waitForQrCandidate({
+  candidates: ['qr:next']
+});
+const selectedNfc: Promise<string> = input.waitForNfcCandidate({
+  candidates: ['0123456789ABCDEF']
 });
 const event: AccumulatedPoseChangedEventV1 = {
   version: 1,
@@ -80,6 +100,8 @@ const actorTouchEvent: ActorTouchCandidateEventV1 = {
 void selected;
 void selectedKey;
 void selectedActor;
+void selectedQr;
+void selectedNfc;
 void event;
 void keyEvent;
 void actorTouchEvent;

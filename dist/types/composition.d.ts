@@ -60,15 +60,37 @@ export interface WaitForActorTouchCandidateOptions {
     readonly candidates: ReadonlyArray<string>;
     readonly signal?: AbortSignal;
 }
+export interface WaitForQrCandidateOptions {
+    readonly candidates: ReadonlyArray<string>;
+    readonly signal?: AbortSignal;
+}
+export interface WaitForNfcCandidateOptions {
+    readonly candidates: ReadonlyArray<string>;
+    readonly signal?: AbortSignal;
+}
+export interface QrCandidateSource {
+    waitForQrText(options: {
+        signal?: AbortSignal;
+    }): Promise<string>;
+}
+export interface NfcCandidateSource {
+    waitForNfcIdm(options: {
+        signal?: AbortSignal;
+    }): Promise<string>;
+}
 export interface AsyncInputComposition {
     waitForPoseCandidate(options: WaitForPoseCandidateOptions): Promise<string>;
     waitForKeyCandidate(options: WaitForKeyCandidateOptions): Promise<string>;
     waitForActorTouchCandidate(options: WaitForActorTouchCandidateOptions): Promise<string>;
+    waitForQrCandidate(options: WaitForQrCandidateOptions): Promise<string>;
+    waitForNfcCandidate(options: WaitForNfcCandidateOptions): Promise<string>;
     releaseAll(): void;
 }
 export interface AsyncInputCompositionOptions {
     readonly poseSource?: AccumulatedPoseSource;
     readonly keySource?: KeyCandidateSource;
     readonly actorTouchSource?: ActorTouchCandidateSource;
+    readonly qrSource?: QrCandidateSource;
+    readonly nfcSource?: NfcCandidateSource;
 }
 export declare function createAsyncInputComposition(options: AsyncInputCompositionOptions): AsyncInputComposition;

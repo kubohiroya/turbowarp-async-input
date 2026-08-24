@@ -17,14 +17,14 @@ scoring and change event features enabled.
 The versioned npm package contains the reviewed build:
 
 ```bash
-pnpm add --save-exact @kubohiroya/turbowarp-async-input@0.4.0
+pnpm add --save-exact @kubohiroya/turbowarp-async-input@0.5.0
 ```
 
 Load `node_modules/@kubohiroya/turbowarp-async-input/dist/async-input.js`, or use the
 version-pinned CDN URL:
 
 ```text
-https://cdn.jsdelivr.net/npm/@kubohiroya/turbowarp-async-input@0.4.0/dist/async-input.js
+https://cdn.jsdelivr.net/npm/@kubohiroya/turbowarp-async-input@0.5.0/dist/async-input.js
 ```
 
 The distributed build enables key and touch blocks through the compile-time `asyncInput` feature
@@ -44,6 +44,8 @@ const input = createAsyncInputComposition({
   poseSource: tmposeComposition,
   keySource,
   actorTouchSource,
+  qrSource,
+  nfcSource,
 });
 const selectedPose = await input.waitForPoseCandidate({
   candidates: ['help', 'jump'],
@@ -55,6 +57,14 @@ const selectedKey = await input.waitForKeyCandidate({
 });
 const selectedActor = await input.waitForActorTouchCandidate({
   candidates: ['LeftDoor', 'RightDoor'],
+  signal,
+});
+const selectedQr = await input.waitForQrCandidate({
+  candidates: ['qr:next'],
+  signal,
+});
+const selectedNfc = await input.waitForNfcCandidate({
+  candidates: ['0123456789ABCDEF'],
   signal,
 });
 ```
@@ -76,7 +86,13 @@ topmost drawable to a DSL actor ID by exact, unique `actorName` matching and rep
 topmost-pick, and uniqueness flags. The composition ignores an observation unless all three flags
 are true, then resolves the first actor ID present in `candidates`.
 
-Pose, key, and actor-touch waits share latest-wins ownership within one composition instance.
+`qrSource` provides `waitForQrText({signal})`, typically from
+`@kubohiroya/turbowarp-jsqr`. `nfcSource` provides `waitForNfcIdm({signal})`, typically from
+`@kubohiroya/turbowarp-webusb-pasori`. The composition accepts only values present in
+`candidates`; non-candidate scans keep waiting until the source returns another value or the signal
+is aborted.
+
+Pose, key, actor-touch, QR, and NFC waits share latest-wins ownership within one composition instance.
 Starting a new valid wait in any mode first unsubscribes and rejects the previous wait with an
 `AbortError`; stale events cannot resolve either wait. An already-aborted, invalid, or
 missing-source request never subscribes and does not replace the current valid wait. Empty and

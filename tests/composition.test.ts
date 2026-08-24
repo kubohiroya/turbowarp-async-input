@@ -204,14 +204,65 @@ describe('Async Input composition API', () => {
     expect(source.listeners.size).toBe(0);
   });
 
-  it('applies latest-wins ownership across pose, key, and actor touch modes', async () => {
+  it('selects QR and NFC promise candidates', async () => {
+    const input = createAsyncInputComposition({
+      qrSource: {
+        async waitForQrText() {
+          return 'qr:next';
+        }
+      },
+      nfcSource: {
+        async waitForNfcIdm() {
+          return '0123456789ABCDEF';
+        }
+      }
+    });
+
+    await expect(input.waitForQrCandidate({candidates: ['qr:next']})).resolves.toBe('qr:next');
+    await expect(input.waitForNfcCandidate({candidates: ['0123456789ABCDEF']}))
+      .resolves.toBe('0123456789ABCDEF');
+  });
+
+  it('aborts QR promise waits through the supplied AbortSignal', async () => {
+    const controller = new AbortController();
+    const input = createAsyncInputComposition({
+      qrSource: {
+        waitForQrText({signal}) {
+          return new Promise((_resolve, reject) => {
+            signal?.addEventListener('abort', () => {
+              const error = new Error('aborted');
+              error.name = 'AbortError';
+              reject(error);
+            }, {once: true});
+          });
+        }
+      }
+    });
+
+    const pending = input.waitForQrCandidate({candidates: ['qr:next'], signal: controller.signal});
+    controller.abort();
+    await expect(pending).rejects.toThrow(/aborted/u);
+  });
+
+  it('applies latest-wins ownership across pose, key, actor touch, and QR modes', async () => {
     const poseSource = new FakePoseSource();
     const keySource = new FakeKeySource();
     const actorTouchSource = new FakeActorTouchSource();
     const input = createAsyncInputComposition({
       poseSource,
       keySource,
-      actorTouchSource
+      actorTouchSource,
+      qrSource: {
+        waitForQrText({signal}) {
+          return new Promise((_resolve, reject) => {
+            signal?.addEventListener('abort', () => {
+              const error = new Error('aborted');
+              error.name = 'AbortError';
+              reject(error);
+            }, {once: true});
+          });
+        }
+      }
     });
     const pose = input.waitForPoseCandidate({candidates: ['jump']});
     const stalePose = poseSource.history[0]!;
@@ -229,6 +280,12 @@ describe('Async Input composition API', () => {
     actorTouchSource.emit(actorTouchEvent('Hero'));
     await expect(touch).resolves.toBe('Hero');
     expect(actorTouchSource.listeners.size).toBe(0);
+
+    const qr = input.waitForQrCandidate({candidates: ['qr:next']});
+    const nextKey = input.waitForKeyCandidate({candidates: ['Enter']});
+    await expect(qr).rejects.toMatchObject({name: 'AbortError'});
+    keySource.emit(keyEvent('Enter'));
+    await expect(nextKey).resolves.toBe('Enter');
   });
 
   it('does not replace an active wait with an invalid or already-aborted request', async () => {
