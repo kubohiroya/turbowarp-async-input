@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "productName": "TurboWarp Async Input",
+  "productName": "TurboWarp-Async-Input",
   "packageType": "extension-composition",
   "licensePolicy": "mpl-2.0",
   "packageManager": "pnpm",
