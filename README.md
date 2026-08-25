@@ -1,4 +1,4 @@
-# TurboWarp Async Input
+# TurboWarp-Async-Input
 
 A target-scoped asynchronous keyboard, pointer, and accumulated pose input extension for
 TurboWarp Temporary Variables.

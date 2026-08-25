@@ -34,8 +34,8 @@ process.stdout.write('Repository policy is aligned.\n');
 
 function checkPolicy() {
   if (policy.schemaVersion !== 1) errors.push('repo-policy.json schemaVersion must be 1');
-  if (policy.productName !== 'TurboWarp Async Input') {
-    errors.push('repo-policy.json productName must be TurboWarp Async Input');
+  if (policy.productName !== 'TurboWarp-Async-Input') {
+    errors.push('repo-policy.json productName must be TurboWarp-Async-Input');
   }
   if (policy.packageType !== 'extension-composition') {
     errors.push('repo-policy.json packageType must be extension-composition');
