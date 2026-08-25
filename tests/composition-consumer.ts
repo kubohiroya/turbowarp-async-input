@@ -20,7 +20,7 @@ declare const subscribeActorTouch: (
   listener: ActorTouchCandidateListener
 ) => () => void;
 
-declare const tmposeCompatibleSource: {
+declare const tmCompatibleSource: {
   resetAccumulatedPose(): void;
   subscribeAccumulatedPose(
     listener: (event: Readonly<AccumulatedPoseChangedEventV1>) => void
@@ -53,7 +53,7 @@ const input: AsyncInputComposition = createAsyncInputComposition({
   nfcSource
 });
 const directInput: AsyncInputComposition = createAsyncInputComposition({
-  poseSource: tmposeCompatibleSource
+  poseSource: tmCompatibleSource
 });
 const selected: Promise<string> = input.waitForPoseCandidate({
   candidates: ['jump', 'stand'],

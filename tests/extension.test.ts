@@ -122,7 +122,7 @@ describe('Async Input extension', () => {
           renderer: {canvas, pick},
           targets: [stage, actor, clone],
           ext_lmsTempVars2: temporaryVariables,
-          ext_tmpose: {supportsAccumulatedPoseEvents},
+          ext_kubohiroyatm: {supportsAccumulatedPoseEvents},
           on: runtimeOn,
           off: runtimeOff,
           startHats
@@ -441,9 +441,9 @@ describe('Async Input extension', () => {
       {POSE_NAME: 'jump', RUNTIME_VAR: 'clonePose', VALUE: 'clone'},
       util(clone)
     );
-    expect(runtimeListeners.get('TMPOSE_ACCUMULATED_POSE_CHANGED')?.size).toBe(1);
+    expect(runtimeListeners.get('TM_ACCUMULATED_POSE_CHANGED')?.size).toBe(1);
 
-    emitRuntime('TMPOSE_ACCUMULATED_POSE_CHANGED', {
+    emitRuntime('TM_ACCUMULATED_POSE_CHANGED', {
       version: 1,
       poseName: 'jump',
       previousPoseName: '',
@@ -468,7 +468,7 @@ describe('Async Input extension', () => {
     );
     extension.stopListeningForPose({POSE_NAME: 'jump'}, util(clone));
 
-    emitRuntime('TMPOSE_ACCUMULATED_POSE_CHANGED', {
+    emitRuntime('TM_ACCUMULATED_POSE_CHANGED', {
       version: 1,
       poseName: 'jump',
       previousPoseName: 'stand',
@@ -480,17 +480,17 @@ describe('Async Input extension', () => {
     expect(runtimeValues.has('clonePose')).toBe(false);
 
     extension.stopAllPoseListeners({}, util(actor));
-    expect(runtimeListeners.get('TMPOSE_ACCUMULATED_POSE_CHANGED')?.size).toBe(0);
+    expect(runtimeListeners.get('TM_ACCUMULATED_POSE_CHANGED')?.size).toBe(0);
   });
 
-  it('validates TMPose capability and ignores invalid event payloads', () => {
+  it('validates TurboWarp TM capability and ignores invalid event payloads', () => {
     supportsAccumulatedPoseEvents.mockReturnValue(false);
     const unavailable = new AsyncInputExtension();
     expect(() => unavailable.listenForPose(
       {POSE_NAME: 'jump', RUNTIME_VAR: 'pose', VALUE: 'yes'},
       util(actor)
-    )).toThrow('TMPose accumulated pose events are unavailable');
-    expect(runtimeListeners.get('TMPOSE_ACCUMULATED_POSE_CHANGED')?.size ?? 0).toBe(0);
+    )).toThrow('TurboWarp TM accumulated pose events are unavailable');
+    expect(runtimeListeners.get('TM_ACCUMULATED_POSE_CHANGED')?.size ?? 0).toBe(0);
 
     supportsAccumulatedPoseEvents.mockReturnValue(true);
     const extension = new AsyncInputExtension();
@@ -498,11 +498,11 @@ describe('Async Input extension', () => {
       {POSE_NAME: 'jump', RUNTIME_VAR: 'pose', VALUE: 'yes'},
       util(actor)
     );
-    emitRuntime('TMPOSE_ACCUMULATED_POSE_CHANGED', {
+    emitRuntime('TM_ACCUMULATED_POSE_CHANGED', {
       version: 2,
       poseName: 'jump'
     });
-    emitRuntime('TMPOSE_ACCUMULATED_POSE_CHANGED', {
+    emitRuntime('TM_ACCUMULATED_POSE_CHANGED', {
       version: 1,
       poseName: 'jump',
       previousPoseName: 'jump',
@@ -510,7 +510,7 @@ describe('Async Input extension', () => {
       reason: 'prediction',
       timestamp: 250
     });
-    emitRuntime('TMPOSE_ACCUMULATED_POSE_CHANGED', {
+    emitRuntime('TM_ACCUMULATED_POSE_CHANGED', {
       version: 1,
       poseName: '',
       previousPoseName: 'jump',
@@ -600,7 +600,7 @@ describe('Async Input extension', () => {
     emitRuntime('targetWasRemoved', actor);
     windowEvents.emit('keydown', keyEvent());
     canvasEvents.emit('pointerdown', pointerEvent());
-    emitRuntime('TMPOSE_ACCUMULATED_POSE_CHANGED', {
+    emitRuntime('TM_ACCUMULATED_POSE_CHANGED', {
       version: 1,
       poseName: 'jump',
       previousPoseName: '',
@@ -633,7 +633,7 @@ describe('Async Input extension', () => {
     emitRuntime('PROJECT_STOP_ALL');
     expect(windowEvents.listenerCount('keydown')).toBe(0);
     expect(canvasEvents.listenerCount('pointerdown')).toBe(0);
-    expect(runtimeListeners.get('TMPOSE_ACCUMULATED_POSE_CHANGED')?.size).toBe(0);
+    expect(runtimeListeners.get('TM_ACCUMULATED_POSE_CHANGED')?.size).toBe(0);
 
     extension.listenForKey(
       {KEY_ID: 'KeyA', RUNTIME_VAR: 'key', VALUE: 'again'},

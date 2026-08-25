@@ -11,20 +11,20 @@ examples, listener ownership, and troubleshooting.
 
 Build or download `dist/async-input.js`, then load it as a local custom extension in TurboWarp
 Desktop with **Run extension without sandbox** enabled. Load TurboWarp's **Temporary Variables**
-extension before registering input. Pose input also requires TMPose with its accumulated pose
+extension before registering input. Pose input also requires TurboWarp TM with its accumulated pose
 scoring and change event features enabled.
 
 The versioned npm package contains the reviewed build:
 
 ```bash
-pnpm add --save-exact @kubohiroya/turbowarp-async-input@0.5.0
+pnpm add --save-exact @kubohiroya/turbowarp-async-input@0.6.0
 ```
 
 Load `node_modules/@kubohiroya/turbowarp-async-input/dist/async-input.js`, or use the
 version-pinned CDN URL:
 
 ```text
-https://cdn.jsdelivr.net/npm/@kubohiroya/turbowarp-async-input@0.5.0/dist/async-input.js
+https://cdn.jsdelivr.net/npm/@kubohiroya/turbowarp-async-input@0.6.0/dist/async-input.js
 ```
 
 The distributed build enables key and touch blocks through the compile-time `asyncInput` feature
@@ -41,7 +41,7 @@ injects only the event sources it uses:
 import {createAsyncInputComposition} from '@kubohiroya/turbowarp-async-input/composition';
 
 const input = createAsyncInputComposition({
-  poseSource: tmposeComposition,
+  poseSource: tmComposition,
   keySource,
   actorTouchSource,
   qrSource,
@@ -131,7 +131,7 @@ avoids one target's registration resetting values already used by another target
 Every binding belongs to the sprite, clone, or stage that executes the registration block. Key bindings are identified by the current target ID and `KeyboardEvent.code`. Ordinary touch bindings are identified by the current sprite or clone target ID. The actor-touch compatibility block keeps the executing target as owner while binding the pointer hit to the resolved actor target. Two clones of the same sprite can therefore register independent bindings.
 
 The extension uses one window `keydown` listener, one renderer-canvas `pointerdown` listener, and
-one TMPose runtime-event listener regardless of the number of bindings. Target deletion removes
+one TurboWarp TM runtime-event listener regardless of the number of bindings. Target deletion removes
 that target's bindings. Green flag, project stop, and runtime disposal remove all bindings.
 
 ## Keyboard input
@@ -156,14 +156,14 @@ binding starts its own configured broadcast.
 
 ## Accumulated pose input
 
-The pose registration block listens for TMPose's `TMPOSE_ACCUMULATED_POSE_CHANGED` version 1
+The pose registration block listens for TurboWarp TM's `TM_ACCUMULATED_POSE_CHANGED` version 1
 event. It runs only when the selected accumulated pose name changes to the registered name;
 confidence changes that keep the same accumulated pose do not retrigger it. Leaving a pose and
 later returning to it triggers the binding again.
 
 Bindings are keyed by the executing target ID and pose name. Multiple targets can listen for the
 same pose independently, and one target can listen for multiple poses. Registration fails without
-Temporary Variables or a TMPose extension that reports accumulated pose event support.
+Temporary Variables or a TurboWarp TM extension that reports accumulated pose event support.
 
 ## Compound arithmetic
 
@@ -335,8 +335,9 @@ Removes every key, pointer, and accumulated pose binding owned by the current ta
 ## Development
 
 ```bash
-npm install
-npm run check
+corepack enable
+pnpm install --frozen-lockfile
+pnpm run check
 ```
 
 ## Release
@@ -347,7 +348,8 @@ Pages deployment succeed, publish the exact package version, create the matching
 on the merge commit, and create the GitHub Release from that tag. Consumers can roll back by
 pinning the preceding npm version.
 
-The build produces `dist/async-input.js`. Commit the rebuilt file whenever extension source changes.
+The build produces `dist/async-input.js`, `dist/composition.js`, and `dist/types/composition.d.ts`.
+Commit rebuilt artifacts whenever extension or Composition source changes.
 
 ## License
 

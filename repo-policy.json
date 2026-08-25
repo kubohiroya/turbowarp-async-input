@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "productName": "TurboWarp Async Input",
+  "packageType": "extension-composition",
+  "licensePolicy": "mpl-2.0",
+  "packageManager": "pnpm",
+  "homepage": "pages",
+  "node": {
+    "minimum": "22"
+  },
+  "extension": {
+    "id": "kubohiroyaasyncinput",
+    "standaloneBundle": "dist/async-input.js",
+    "compositionBundle": "dist/composition.js",
+    "compositionTypes": "dist/types/composition.d.ts"
+  },
+  "integrations": {
+    "turboWarpTMExtensionId": "kubohiroyatm",
+    "accumulatedPoseEvent": "TM_ACCUMULATED_POSE_CHANGED"
+  },
+  "exceptions": {
+    "compositionApi": true,
+    "optionalPeerExtensions": true,
+    "defaultOffPoseInput": true,
+    "legacyOpcodeCompatibility": true
+  }
+}
