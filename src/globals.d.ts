@@ -16,7 +16,7 @@ interface TemporaryVariablesExtension {
   runtimeVariableExists(args: {VAR: string}): boolean;
 }
 
-interface TMPoseExtension {
+interface TurboWarpTMExtension {
   supportsAccumulatedPoseEvents(): boolean;
 }
 
@@ -24,7 +24,7 @@ interface TurboWarpRuntime {
   renderer: TurboWarpRenderer;
   targets: TurboWarpTarget[];
   ext_lmsTempVars2?: TemporaryVariablesExtension;
-  ext_tmpose?: TMPoseExtension;
+  ext_kubohiroyatm?: TurboWarpTMExtension;
   on(eventName: string, listener: (payload?: any) => void): void;
   off(eventName: string, listener: (payload?: any) => void): void;
   startHats(

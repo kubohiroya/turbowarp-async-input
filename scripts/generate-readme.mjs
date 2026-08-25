@@ -22,7 +22,7 @@ const next = readme.replace(
 );
 if (checkOnly) {
   if (next !== readme) {
-    throw new Error('README.md generated block reference is out of date. Run npm run docs.');
+    throw new Error('README.md generated block reference is out of date. Run pnpm run docs.');
   }
   console.log('README.md generated block reference is up to date.');
 } else {

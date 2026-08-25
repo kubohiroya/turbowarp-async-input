@@ -1,6 +1,6 @@
 {
   "name": "@kubohiroya/turbowarp-async-input",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "A target-scoped asynchronous keyboard, pointer, and accumulated pose input extension for TurboWarp.",
   "author": "Hiroya Kubo <hiroya@cuc.ac.jp>",
   "license": "MPL-2.0",
@@ -54,10 +54,13 @@
     }
   },
   "packageManager": "pnpm@11.11.0",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "dev": "vite build --watch",
     "typecheck": "tsc --noEmit",
-    "build": "npm run build:extension && npm run build:composition && npm run build:types",
+    "build": "pnpm run build:extension && pnpm run build:composition && pnpm run build:types",
     "build:extension": "vite build",
     "build:composition": "vite build --config vite.composition.config.ts",
     "build:types": "tsc --project tsconfig.build.json",
@@ -69,11 +72,12 @@
     "check:dist": "node scripts/check-dist.mjs",
     "pack:check": "npm pack --dry-run --ignore-scripts",
     "release:check": "npm publish --dry-run --access public",
-    "check": "npm run typecheck && npm run test && npm run build && npm run types:composition:check && npm run docs:check && npm run site:check && npm run check:dist && npm run pack:check",
-    "prepack": "npm run check"
+    "repo:check": "node scripts/check-repo.mjs",
+    "check": "pnpm run typecheck && pnpm run test && pnpm run build && pnpm run types:composition:check && pnpm run docs:check && pnpm run site:check && pnpm run check:dist && pnpm run repo:check && pnpm run pack:check",
+    "prepack": "pnpm run check"
   },
   "devDependencies": {
-    "@kubohiroya/vite-plugin-turbowarp-extension": "0.1.0",
+    "@kubohiroya/vite-plugin-turbowarp-extension": "0.1.1",
     "typescript": "^5.9.3",
     "vite": "^7.3.6",
     "vitest": "^4.1.10"

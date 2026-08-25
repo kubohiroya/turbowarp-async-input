@@ -7,7 +7,7 @@ const distributionUrls = [
   new URL('../dist/types/composition.d.ts', import.meta.url)
 ];
 const before = await Promise.all(distributionUrls.map((url) => readFile(url, 'utf8')));
-const build = spawnSync('npm', ['run', 'build'], {stdio: 'inherit'});
+const build = spawnSync('pnpm', ['run', 'build'], {stdio: 'inherit'});
 
 if (build.status !== 0) {
   throw new Error(`Distribution build failed with status ${build.status ?? 'unknown'}.`);

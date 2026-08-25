@@ -2,6 +2,19 @@
 
 Notable changes to this project are recorded here. This project follows Semantic Versioning.
 
+## [0.6.0] - 2026-08-25
+
+### Changed
+
+- Standalone pose input now resolves TurboWarp TM through extension ID `kubohiroyatm`.
+- Accumulated pose input now listens for `TM_ACCUMULATED_POSE_CHANGED`.
+- Documentation, package metadata, and maintainer commands now use the Node 22 / pnpm baseline.
+
+### Compatibility
+
+- Async Input's own extension ID, opcodes, feature flags, and Composition API contracts are unchanged.
+- Consumers can roll back by pinning `@kubohiroya/turbowarp-async-input@0.5.0`.
+
 ## [0.5.0] - 2026-08-25
 
 ### Added
@@ -54,6 +67,7 @@ Notable changes to this project are recorded here. This project follows Semantic
 - Bilingual GitHub Pages user guide.
 - Versioned npm and CDN installation guidance.
 
+[0.6.0]: https://github.com/kubohiroya/turbowarp-async-input/releases/tag/v0.6.0
 [0.5.0]: https://github.com/kubohiroya/turbowarp-async-input/releases/tag/v0.5.0
 [0.4.0]: https://github.com/kubohiroya/turbowarp-async-input/releases/tag/v0.4.0
 [0.3.0]: https://github.com/kubohiroya/turbowarp-async-input/releases/tag/v0.3.0

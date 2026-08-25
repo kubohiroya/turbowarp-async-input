@@ -7,9 +7,9 @@ import {
 } from './runtime-variables.js';
 
 export const EXTENSION_ID = 'kubohiroyaasyncinput';
-export const EXTENSION_VERSION = '2026-07-18-key-touch-broadcast-v1';
+export const EXTENSION_VERSION = '0.6.0';
 export const DOCS_URI = 'https://kubohiroya.github.io/turbowarp-async-input/';
-export const ACCUMULATED_POSE_CHANGED_EVENT = 'TMPOSE_ACCUMULATED_POSE_CHANGED';
+export const ACCUMULATED_POSE_CHANGED_EVENT = 'TM_ACCUMULATED_POSE_CHANGED';
 export const BLOCK_ICON_URI = `data:image/svg+xml,${encodeURIComponent(
   '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><g fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><circle cx="45" cy="32" r="13"/><path d="M8 32h30M28 22l10 10-10 10"/></g></svg>'
 )}`;
@@ -403,16 +403,16 @@ export class AsyncInputExtension {
     return matches[0]!;
   }
 
-  private requireAccumulatedPoseEvents(): TMPoseExtension {
-    const extension = this.runtime.ext_tmpose;
+  private requireAccumulatedPoseEvents(): TurboWarpTMExtension {
+    const extension = this.runtime.ext_kubohiroyatm;
     if (
       !extension
       || typeof extension.supportsAccumulatedPoseEvents !== 'function'
       || !extension.supportsAccumulatedPoseEvents()
     ) {
       throw new Error(
-        'TMPose accumulated pose events are unavailable. '
-        + 'Load TMPose with temporalPoseScoring and accumulatedPoseEvents enabled.'
+        'TurboWarp TM accumulated pose events are unavailable. '
+        + 'Load TurboWarp TM with temporalPoseScoring and accumulatedPoseEvents enabled.'
       );
     }
     return extension;
