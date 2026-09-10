@@ -55,7 +55,7 @@
   },
   "packageManager": "pnpm@11.11.0",
   "engines": {
-    "node": ">=22"
+    "node": ">=22.18.0"
   },
   "scripts": {
     "dev": "vite build --watch",
@@ -66,18 +66,19 @@
     "build:types": "tsc --project tsconfig.build.json",
     "types:composition:check": "tsc --project tsconfig.composition-consumer.json",
     "test": "vitest run",
-    "docs": "node scripts/generate-readme.mjs",
-    "docs:check": "node scripts/generate-readme.mjs --check",
-    "site:check": "node scripts/check-site.mjs",
-    "check:dist": "node scripts/check-dist.mjs",
+    "docs": "node scripts/generate-readme.ts",
+    "docs:check": "node scripts/generate-readme.ts --check",
+    "site:check": "node scripts/check-site.ts",
+    "check:dist": "node scripts/check-dist.ts",
     "pack:check": "npm pack --dry-run --ignore-scripts",
     "release:check": "npm publish --dry-run --access public",
-    "repo:check": "node scripts/check-repo.mjs",
+    "repo:check": "node scripts/check-repo.ts",
     "check": "pnpm run typecheck && pnpm run test && pnpm run build && pnpm run types:composition:check && pnpm run docs:check && pnpm run site:check && pnpm run check:dist && pnpm run repo:check && pnpm run pack:check",
     "prepack": "pnpm run check"
   },
   "devDependencies": {
     "@kubohiroya/vite-plugin-turbowarp-extension": "0.1.1",
+    "@types/node": "^22.20.1",
     "typescript": "^5.9.3",
     "vite": "^7.3.6",
     "vitest": "^4.1.10"
