@@ -7,7 +7,7 @@ const pages = [
   {path: 'docs/index.html', language: 'en'},
   {path: 'docs/ja/index.html', language: 'ja'}
 ];
-const errors = [];
+const errors: string[] = [];
 
 await checkAppBar();
 await checkAppBarCss();
@@ -27,8 +27,8 @@ for (const page of pages) {
   expectPattern(html, /hreflang=["']en["']/, `${page.path} must link to the English guide`);
   expectPattern(html, /hreflang=["']ja["']/, `${page.path} must link to the Japanese guide`);
 
-  const ids = new Set([...html.matchAll(/\sid=["']([^"']+)["']/g)].map((match) => match[1]));
-  const links = [...html.matchAll(/\shref=["']([^"']+)["']/g)].map((match) => match[1]);
+  const ids = new Set([...html.matchAll(/\sid=["']([^"']+)["']/g)].flatMap((match) => match[1] ?? []));
+  const links = [...html.matchAll(/\shref=["']([^"']+)["']/g)].flatMap((match) => match[1] ?? []);
 
   for (const link of links) {
     if (link.startsWith('#')) {
@@ -55,7 +55,7 @@ if (errors.length > 0) {
 
 console.log(`Checked ${pages.length} localized documentation pages.`);
 
-function expectPattern(content, pattern, message) {
+function expectPattern(content: string, pattern: RegExp, message: string) {
   if (!pattern.test(content)) errors.push(message);
 }
 
@@ -64,7 +64,7 @@ async function checkAppBar() {
   const appBars = sources.map((source, index) => {
     const match = source.match(/<header class="app-bar">[\s\S]*?<\/header>/);
     if (!match) {
-      errors.push(`${pages[index].path}: missing app-bar`);
+      errors.push(`${pages[index]?.path}: missing app-bar`);
       return '';
     }
     return match[0];
@@ -73,7 +73,7 @@ async function checkAppBar() {
   const signatures = appBars.map((appBar) => [...appBar.matchAll(/<(\/)?([a-z0-9-]+)([^>]*)>/gi)]
     .map((match) => {
       if (match[1]) return `/${match[2]}`;
-      const className = match[3].match(/\bclass="([^"]+)"/)?.[1] ?? '';
+      const className = match[3]?.match(/\bclass="([^"]+)"/)?.[1] ?? '';
       return `${match[2]}.${className}`;
     })
     .join('|'));
@@ -81,7 +81,7 @@ async function checkAppBar() {
 
   const sectionTargets = appBars.map((appBar) => {
     const nav = appBar.match(/<nav class="app-bar-sections"[\s\S]*?<\/nav>/)?.[0] ?? '';
-    return [...nav.matchAll(/href="(#[^"]+)"/g)].map((match) => match[1]);
+    return [...nav.matchAll(/href="(#[^"]+)"/g)].flatMap((match) => match[1] ?? []);
   });
   if (JSON.stringify(sectionTargets[0]) !== JSON.stringify(sectionTargets[1])) {
     errors.push('localized app bars must use the same section order');
@@ -89,17 +89,17 @@ async function checkAppBar() {
 
   for (const [index, appBar] of appBars.entries()) {
     for (const className of ['app-bar-brand', 'app-bar-sections', 'app-bar-actions', 'app-bar-github', 'app-bar-languages']) {
-      if (!appBar.includes(`class="${className}"`)) errors.push(`${pages[index].path}: missing ${className}`);
+      if (!appBar.includes(`class="${className}"`)) errors.push(`${pages[index]?.path}: missing ${className}`);
     }
     if (!appBar.includes('>English</a>') || !appBar.includes('>日本語</a>')) {
-      errors.push(`${pages[index].path}: language names must be English / 日本語`);
+      errors.push(`${pages[index]?.path}: language names must be English / 日本語`);
     }
     if ((appBar.match(/aria-current="page"/g) ?? []).length !== 1) {
-      errors.push(`${pages[index].path}: exactly one language must have aria-current=page`);
+      errors.push(`${pages[index]?.path}: exactly one language must have aria-current=page`);
     }
     for (const language of ['en', 'ja']) {
       if (!new RegExp(`hreflang="${language}"[^>]*lang="${language}"|lang="${language}"[^>]*hreflang="${language}"`).test(appBar)) {
-        errors.push(`${pages[index].path}: language switch is missing lang/hreflang=${language}`);
+        errors.push(`${pages[index]?.path}: language switch is missing lang/hreflang=${language}`);
       }
     }
   }
@@ -108,7 +108,7 @@ async function checkAppBar() {
 async function checkAppBarCss() {
   const cssPath = resolve(repositoryRoot, 'docs/assets/styles.css');
   const css = await readFile(cssPath, 'utf8');
-  const requirements = [
+  const requirements: [RegExp, string][] = [
     [/\.app-bar\s*{[\s\S]*?position:\s*sticky/, 'sticky app bar'],
     [/\.app-bar-inner\s*{[\s\S]*?min-height:\s*4\.25rem/, '68px app bar content height'],
     [/backdrop-filter:\s*blur\(/, 'backdrop blur'],
@@ -121,7 +121,7 @@ async function checkAppBarCss() {
     if (!pattern.test(css)) errors.push(`docs/assets/styles.css: missing ${label}`);
   }
   const hiddenSelectors = [...css.matchAll(/([^{}]+)\{[^{}]*display:\s*none/g)]
-    .map((match) => match[1]);
+    .flatMap((match) => match[1] ?? []);
   for (const selector of ['.app-bar-brand', '.app-bar-mark', '.app-bar-github', '.app-bar-languages']) {
     if (hiddenSelectors.some((hiddenSelector) => hiddenSelector.includes(selector))) {
       errors.push(`docs/assets/styles.css: ${selector} must remain visible on mobile`);

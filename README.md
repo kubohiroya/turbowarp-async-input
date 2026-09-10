@@ -17,14 +17,14 @@ scoring and change event features enabled.
 The versioned npm package contains the reviewed build:
 
 ```bash
-pnpm add --save-exact @kubohiroya/turbowarp-async-input@0.6.0
+pnpm add --save-exact @kubohiroya/turbowarp-async-input@0.7.0
 ```
 
 Load `node_modules/@kubohiroya/turbowarp-async-input/dist/async-input.js`, or use the
 version-pinned CDN URL:
 
 ```text
-https://cdn.jsdelivr.net/npm/@kubohiroya/turbowarp-async-input@0.6.0/dist/async-input.js
+https://cdn.jsdelivr.net/npm/@kubohiroya/turbowarp-async-input@0.7.0/dist/async-input.js
 ```
 
 The distributed build enables key and touch blocks through the compile-time `asyncInput` feature
