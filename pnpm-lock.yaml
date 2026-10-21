@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@kubohiroya/turbowarp-jsqr':
-        specifier: 0.4.2
-        version: 0.4.2(@types/emscripten@1.41.6)
+        specifier: 0.4.3
+        version: 0.4.3(@types/emscripten@1.41.6)
       '@kubohiroya/turbowarp-webusb-pasori':
         specifier: 0.3.1
         version: 0.3.1
@@ -189,11 +189,11 @@ packages:
   '@jridgewell/sourcemap-codec@1.5.5':
     resolution: {integrity: sha512-cYQ9310grqxueWbl+WuIUIaiUaDcj7WOq5fVhEljNVgRfOUhY9fy2zTvfoqWsnebh8Sl70VScFbICvJnLKB0Og==}
 
-  '@kubohiroya/turbowarp-jsqr@0.4.2':
-    resolution: {integrity: sha512-YOb8qFwCo7f6VVUABS5N807sTRJ8TkT4AT4DEa8p560ZqRdn5KyWRPqRVYz1Ukz9KyqSCcM+5nW0O/5JhPJ3/w==}
+  '@kubohiroya/turbowarp-jsqr@0.4.3':
+    resolution: {integrity: sha512-HqFQ3wPtiMtbJGGFYpF8QTyY6CmbFyaXnC/BfvEmbcJlFkBlnze5EmyJ2sL32LlEa+L9r4wYsWMLD21WLzHPNQ==}
     engines: {node: '>=22.18.0'}
     peerDependencies:
-      '@kubohiroya/turbowarp-camera-source': 0.19.0
+      '@kubohiroya/turbowarp-camera-source': 0.19.1
     peerDependenciesMeta:
       '@kubohiroya/turbowarp-camera-source':
         optional: true
@@ -729,7 +729,7 @@ snapshots:
 
   '@jridgewell/sourcemap-codec@1.5.5': {}
 
-  '@kubohiroya/turbowarp-jsqr@0.4.2(@types/emscripten@1.41.6)':
+  '@kubohiroya/turbowarp-jsqr@0.4.3(@types/emscripten@1.41.6)':
     dependencies:
       zxing-wasm: 3.1.4(@types/emscripten@1.41.6)
     transitivePeerDependencies:
