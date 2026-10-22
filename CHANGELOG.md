@@ -2,6 +2,19 @@
 
 Notable changes to this project are recorded here. This project follows Semantic Versioning.
 
+## [0.8.0] - 2026-10-22
+
+### Changed
+
+- Run repository validation and README generation scripts as typed TypeScript sources.
+- Require Node.js 22.18.0 or later for native TypeScript execution.
+- Retain the current 0.7.3 runtime, composition types, plugin 0.6.1, and pinned optional peers.
+
+### Compatibility
+
+- Extension IDs, opcodes, feature flags, and Composition API contracts are unchanged.
+- The increased Node.js minimum is a compatibility change; pin 0.7.3 to keep the previous minimum.
+
 ## [0.6.0] - 2026-08-25
 
 ### Changed
