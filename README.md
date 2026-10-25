@@ -1,5 +1,7 @@
 # TurboWarp-Async-Input
 
+[日本語](README.ja.md)
+
 A target-scoped asynchronous keyboard, pointer, and accumulated pose input extension for
 TurboWarp Temporary Variables.
 
