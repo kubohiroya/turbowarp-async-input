@@ -174,9 +174,8 @@ describe('Async Input extension', () => {
     expect(extensionInfo.docsURI).toBe(DOCS_URI);
     expect(extensionInfo.blockIconURI).toBe(BLOCK_ICON_URI);
     const iconSvg = decodeURIComponent(BLOCK_ICON_URI.slice('data:image/svg+xml,'.length));
-    expect(iconSvg).toContain('viewBox="0 0 64 64"');
-    expect(iconSvg).toContain('<circle cx="45" cy="32" r="13"/>');
-    expect(iconSvg).not.toContain('<rect');
+    expect(iconSvg).toContain('viewBox="0 0 48 48"');
+    expect(iconSvg).toContain('M30 25l11 11-5 1 3 5-3 2-3-5-3 4z');
     expect(extensionInfo.blocks.map((block) => block.opcode))
       .toEqual([
         'listenForKey',
