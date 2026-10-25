@@ -1137,3 +1137,15 @@ details p {
     --shadow:0 18px 48px rgba(0,0,0,.5);
   }
 }
+
+:root{color-scheme:light dark}
+@media (prefers-color-scheme:dark){
+  code{color:#d6e6e3;background:#1b2b29}
+  .app-bar{border-bottom-color:rgba(38,57,54,.8);background:rgba(14,23,22,.92)}
+  .stage-window{border-color:#274541;background:#13211f}
+  .window-bar{border-bottom-color:rgba(255,255,255,.14);background:rgba(255,255,255,.06)}
+  .stage::before{background:rgba(255,255,255,.05)}
+  .keycap{border-color:#2d3b39;color:#d6e6e3;background:#1b2b29}
+  .runtime-card{border-color:#274541;background:#15201f}
+  body{background:radial-gradient(circle at 90% 5%,rgba(79,199,182,.13),transparent 24rem),linear-gradient(180deg,#10201e 0,var(--paper) 34rem)}
+}
