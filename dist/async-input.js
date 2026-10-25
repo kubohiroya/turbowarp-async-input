@@ -7,6 +7,21 @@
 (function (Scratch) {
   'use strict';
 
+  //#region src/config.ts
+  var extensionConfig = {
+  	id: "kubohiroyaasyncinput",
+  	slug: "async-input",
+  	name: "Async Input",
+  	description: "Bind keyboard and current-sprite pointer input to Temporary Variables runtime variables.",
+  	author: "Hiroya Kubo",
+  	license: "MPL-2.0",
+  	unsandboxed: true,
+  	docsURI: "https://kubohiroya.github.io/turbowarp-async-input/",
+  	color1: "#2f9d8f",
+  	color2: "#247c72",
+  	color3: "#185b54",
+  	blockIconURI: `data:image/svg+xml,${encodeURIComponent("<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\"><rect x=\"7\" y=\"13\" width=\"22\" height=\"18\" rx=\"4\" fill=\"#E6533C\"/><g fill=\"#fff\"><rect x=\"12\" y=\"18\" width=\"4\" height=\"4\" rx=\"1\"/><rect x=\"20\" y=\"18\" width=\"4\" height=\"4\" rx=\"1\"/><rect x=\"12\" y=\"25\" width=\"12\" height=\"3\" rx=\"1.5\"/></g><path d=\"M30 25l11 11-5 1 3 5-3 2-3-5-3 4z\" fill=\"#FFAB19\"/></svg>")}`
+  };
   var block_definitions_default = {
   	extensionName: "Async Input",
   	blocks: [
@@ -233,10 +248,10 @@
   }
   //#endregion
   //#region src/extension.ts
-  var EXTENSION_ID = "kubohiroyaasyncinput";
-  var DOCS_URI = "https://kubohiroya.github.io/turbowarp-async-input/";
+  var EXTENSION_ID = extensionConfig.id;
+  var DOCS_URI = extensionConfig.docsURI;
   var ACCUMULATED_POSE_CHANGED_EVENT = "TM_ACCUMULATED_POSE_CHANGED";
-  var BLOCK_ICON_URI = `data:image/svg+xml,${encodeURIComponent("<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\"><rect x=\"7\" y=\"13\" width=\"22\" height=\"18\" rx=\"4\" fill=\"#E6533C\"/><g fill=\"#fff\"><rect x=\"12\" y=\"18\" width=\"4\" height=\"4\" rx=\"1\"/><rect x=\"20\" y=\"18\" width=\"4\" height=\"4\" rx=\"1\"/><rect x=\"12\" y=\"25\" width=\"12\" height=\"3\" rx=\"1.5\"/></g><path d=\"M30 25l11 11-5 1 3 5-3 2-3-5-3 4z\" fill=\"#FFAB19\"/></svg>")}`;
+  var BLOCK_ICON_URI = extensionConfig.blockIconURI;
   var ARITHMETIC_OPERATORS = /* @__PURE__ */ new Set([
   	"+",
   	"-",
@@ -364,9 +379,9 @@
   			name: Scratch.translate(block_definitions_default.extensionName),
   			docsURI: DOCS_URI,
   			blockIconURI: BLOCK_ICON_URI,
-  			color1: "#2f9d8f",
-  			color2: "#247c72",
-  			color3: "#185b54",
+  			color1: extensionConfig.color1,
+  			color2: extensionConfig.color2,
+  			color3: extensionConfig.color3,
   			blocks: [...blockDefinitions, ...internalBlockDefinitions].filter((block) => this.featureFlags.asyncInput && (!block.featureFlag || this.featureFlags[block.featureFlag])).map((block) => ({
   				opcode: block.opcode,
   				blockType: Scratch.BlockType[block.blockType],
@@ -658,7 +673,7 @@
   };
   //#endregion
   //#region src/index.ts
-  if (!Scratch.extensions.unsandboxed) throw new Error("Async Input must run unsandboxed.");
+  if (extensionConfig.unsandboxed && !Scratch.extensions.unsandboxed) throw new Error(`${extensionConfig.name} must run unsandboxed.`);
   Scratch.extensions.register(new AsyncInputExtension());
   //#endregion
 
