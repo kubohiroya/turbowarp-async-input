@@ -2,7 +2,7 @@
 
 <img src="assets/block-icon.svg" alt="" width="48" height="48">
 
-[日本語](README.ja.md)
+English | [日本語](README.ja.md)
 
 A target-scoped asynchronous keyboard, pointer, and accumulated pose input extension for
 TurboWarp Temporary Variables.
