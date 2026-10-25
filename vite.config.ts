@@ -1,15 +1,16 @@
 import {defineConfig} from 'vite';
 import {turboWarpExtension} from '@kubohiroya/vite-plugin-turbowarp-extension';
+import {extensionConfig} from './src/config.js';
 
 export default defineConfig({
   plugins: [
     turboWarpExtension({
-      id: 'kubohiroyaasyncinput',
-      name: 'Async Input',
-      description: 'Bind keyboard and current-sprite pointer input to Temporary Variables runtime variables.',
-      author: 'Hiroya Kubo',
-      license: 'MPL-2.0',
-      fileName: 'async-input.js'
+      id: extensionConfig.id,
+      name: extensionConfig.name,
+      description: extensionConfig.description,
+      author: extensionConfig.author,
+      license: extensionConfig.license,
+      fileName: `${extensionConfig.slug}.js`
     })
   ]
 });

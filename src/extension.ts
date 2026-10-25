@@ -1,3 +1,4 @@
+import {extensionConfig} from './config.js';
 import definitions from './block-definitions.json' with {type: 'json'};
 import {FEATURE_FLAGS} from '../config/feature-flags.js';
 import {
@@ -6,13 +7,11 @@ import {
   writeRuntimeVariable
 } from './runtime-variables.js';
 
-export const EXTENSION_ID = 'kubohiroyaasyncinput';
+export const EXTENSION_ID = extensionConfig.id;
 export const EXTENSION_VERSION = '0.6.0';
-export const DOCS_URI = 'https://kubohiroya.github.io/turbowarp-async-input/';
+export const DOCS_URI = extensionConfig.docsURI;
 export const ACCUMULATED_POSE_CHANGED_EVENT = 'TM_ACCUMULATED_POSE_CHANGED';
-export const BLOCK_ICON_URI = `data:image/svg+xml,${encodeURIComponent(
-  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><rect x="7" y="13" width="22" height="18" rx="4" fill="#E6533C"/><g fill="#fff"><rect x="12" y="18" width="4" height="4" rx="1"/><rect x="20" y="18" width="4" height="4" rx="1"/><rect x="12" y="25" width="12" height="3" rx="1.5"/></g><path d="M30 25l11 11-5 1 3 5-3 2-3-5-3 4z" fill="#FFAB19"/></svg>'
-)}`;
+export const BLOCK_ICON_URI = extensionConfig.blockIconURI;
 
 type BlockArgs = Record<string, unknown>;
 type ArithmeticOperator = '+' | '-' | '*' | '/';
@@ -156,9 +155,9 @@ export class AsyncInputExtension {
       name: Scratch.translate(definitions.extensionName),
       docsURI: DOCS_URI,
       blockIconURI: BLOCK_ICON_URI,
-      color1: '#2f9d8f',
-      color2: '#247c72',
-      color3: '#185b54',
+      color1: extensionConfig.color1,
+      color2: extensionConfig.color2,
+      color3: extensionConfig.color3,
       blocks: [...blockDefinitions, ...internalBlockDefinitions]
         .filter((block) =>
           this.featureFlags.asyncInput
