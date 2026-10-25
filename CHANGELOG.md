@@ -2,6 +2,18 @@
 
 Notable changes to this project are recorded here. This project follows Semantic Versioning.
 
+## [0.9.0] - 2026-10-26
+
+### Changed
+
+- Update optional QR and PaSoRi peers to jsqr 0.5.0 and webusb-pasori 0.4.0.
+- Build with vite-plugin-turbowarp-extension 0.8.0.
+
+### Compatibility
+
+- Standalone blocks, composition contracts, and default feature flags are unchanged.
+- Consumers can roll back by pinning 0.8.1 with its previous optional peer versions.
+
 ## [0.8.0] - 2026-10-22
 
 ### Changed
