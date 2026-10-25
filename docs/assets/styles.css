@@ -1126,3 +1126,14 @@ details p {
     break-inside: avoid;
   }
 }
+
+:root{color-scheme:light dark}
+@media (prefers-color-scheme:dark){
+  :root{
+    --ink:#e6f2f0;--muted:#9ab5b1;--paper:#0e1716;--card:#15201f;--line:#263936;
+    --brand:#54c7b6;--brand-dark:#2f9d8f;--brand-soft:#17302d;
+    --purple:#a991f0;--purple-soft:#241f36;
+    --yellow:#f0c56a;--yellow-soft:#33280f;--red:#e2817d;
+    --shadow:0 18px 48px rgba(0,0,0,.5);
+  }
+}
