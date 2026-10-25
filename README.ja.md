@@ -111,9 +111,43 @@ rejectします。古いイベントがどちらの待機も解決すること�
 
 ## 拡張機能IDの互換性
 
+この拡張機能には、独立した2つのID移行が関係します。Async Input自身のIDは、プロジェクトファイルに保存される
+opcodeを変えます。累積ポーズ入力が実行時に解決するTurboWarp TMのIDは、プロジェクトファイルを何も変えません。
+一方の移行が他方を意味することはありません。
+
+### Async Input自身の拡張機能ID
+
 この移行releaseでは、標準に準拠したID`kubohiroyaasyncinput`を使います。`twAsyncInput`のopcodeを
 保存したままの既存プロジェクトには、同時にschemaを理解した移行処理が必要です。JavaScriptの成果物だけを
 置き換えると、既存のblockが壊れます。
+
+### TurboWarp TMの拡張機能ID
+
+累積ポーズ入力は、実行時の拡張機能IDでTurboWarp TMを解決します。Async Input`0.6.0`で、この解決先を
+TurboWarp TM 1.x系のIDから`kubohiroyatm`へ移しました。TurboWarp TM側は`2.0.0`でこのIDを採用しています。
+双方が一致する組合せだけが解決されます。
+
+| Async Input | 解決するTurboWarp TMのID | TurboWarp TM 1.x | TurboWarp TM 2.0.0以降 |
+| --- | --- | --- | --- |
+| 0.5.x以前 | 1.x系のID | support | reject |
+| 0.6.0以降 | `kubohiroyatm` | reject | support |
+
+1.x系のIDはここには書きません。このリポジトリは、旧ポーズ時代の名前を文書に残さない方針です。その値が
+必要なときは、TurboWarp TM 1.x自身の文書を参照してください。`0.6.0`以降のreleaseは、現行のものを含めて
+TurboWarp TM`2.0.0`以降と組み合わせます。
+
+rejectされる組合せで使えなくなるのは、累積ポーズ入力だけです。キーボード、タッチ、QR、NFCの入力は
+TurboWarp TMを参照しないので、まったく同じように動きます。またこの失敗はsilent failureではありません。
+登録には累積ポーズイベントへの対応を報告するTurboWarp TM拡張機能が必要なので、IDが解決できない場合は、
+発火しない束縛ではなく登録の失敗として現れます。
+
+`poseInput` feature flagは、`config/feature-flags.ts`で既定OFFです。これを有効にしないビルドはこの解決処理
+へ到達しないため、そこでは組合せの問題が起きません。
+
+拡張機能IDとイベントのversionは、別の互換軸です。ポーズ入力が購読するのは
+`TM_ACCUMULATED_POSE_CHANGED` version 1であり、拡張機能IDが一致しても、イベントのversionの一致までは
+保証されません。どちらについても、`repo-policy.json`の`integrations.turboWarpTMExtensionId`と
+`integrations.accumulatedPoseEvent`が正本です。
 
 ## 実行時変数の初期化
 

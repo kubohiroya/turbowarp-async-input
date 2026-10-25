@@ -115,9 +115,43 @@ opcodes, and the default-OFF `poseInput` feature flag are unchanged.
 
 ## Extension ID compatibility
 
+Two independent ID migrations affect this extension. Async Input's own ID changes the opcodes stored
+in project files. The TurboWarp TM ID that accumulated pose input resolves at runtime changes
+nothing in project files. Neither migration implies the other.
+
+### Async Input's own extension ID
+
 This migration release uses the standards-compliant ID `kubohiroyaasyncinput`. Existing projects
 that store `twAsyncInput` opcodes must apply a schema-aware project migration at the same time;
 replacing the JavaScript artifact alone would break their existing blocks.
+
+### TurboWarp TM extension ID
+
+Accumulated pose input resolves TurboWarp TM through a runtime extension ID. Async Input `0.6.0`
+moved that lookup from TurboWarp TM's 1.x ID to `kubohiroyatm`, which TurboWarp TM adopted in
+`2.0.0`. Only matching sides resolve each other:
+
+| Async Input | TurboWarp TM ID it resolves | TurboWarp TM 1.x | TurboWarp TM 2.0.0 and later |
+| --- | --- | --- | --- |
+| 0.5.x and earlier | the 1.x ID | supported | rejected |
+| 0.6.0 and later | `kubohiroyatm` | rejected | supported |
+
+The 1.x ID is not spelled out here, because this repository keeps legacy pose-era naming out of its
+documentation. Consult TurboWarp TM 1.x's own documentation when that value is needed. Every
+release from `0.6.0` onward, including the current one, pairs with TurboWarp TM `2.0.0` or later.
+
+A rejected combination withholds accumulated pose input and nothing else. Keyboard, touch, QR, and
+NFC input never consult TurboWarp TM and behave identically. The failure is not silent either:
+registration requires a TurboWarp TM extension that reports accumulated pose event support, so an
+unresolved ID surfaces as a registration failure rather than a binding that never fires.
+
+The `poseInput` feature flag is off by default in `config/feature-flags.ts`. A build that leaves it
+off never reaches this lookup, so the combination cannot matter there.
+
+Extension ID and event version are separate compatibility axes. Pose input subscribes to
+`TM_ACCUMULATED_POSE_CHANGED` version 1, and a matching extension ID does not by itself guarantee a
+matching event version. `repo-policy.json` holds `integrations.turboWarpTMExtensionId` and
+`integrations.accumulatedPoseEvent` as the source of truth for both.
 
 ## Runtime variable initialization
 
