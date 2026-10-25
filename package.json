@@ -30,6 +30,7 @@
     "./async-input.js": "./dist/async-input.js"
   },
   "files": [
+    "assets/",
     "dist/",
     "CHANGELOG.md",
     "README.md",
