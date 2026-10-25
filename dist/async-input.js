@@ -236,7 +236,7 @@
   var EXTENSION_ID = "kubohiroyaasyncinput";
   var DOCS_URI = "https://kubohiroya.github.io/turbowarp-async-input/";
   var ACCUMULATED_POSE_CHANGED_EVENT = "TM_ACCUMULATED_POSE_CHANGED";
-  var BLOCK_ICON_URI = `data:image/svg+xml,${encodeURIComponent("<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 64 64\"><g fill=\"none\" stroke=\"#fff\" stroke-width=\"5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"45\" cy=\"32\" r=\"13\"/><path d=\"M8 32h30M28 22l10 10-10 10\"/></g></svg>")}`;
+  var BLOCK_ICON_URI = `data:image/svg+xml,${encodeURIComponent("<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\"><rect x=\"7\" y=\"13\" width=\"22\" height=\"18\" rx=\"4\" fill=\"#E6533C\"/><g fill=\"#fff\"><rect x=\"12\" y=\"18\" width=\"4\" height=\"4\" rx=\"1\"/><rect x=\"20\" y=\"18\" width=\"4\" height=\"4\" rx=\"1\"/><rect x=\"12\" y=\"25\" width=\"12\" height=\"3\" rx=\"1.5\"/></g><path d=\"M30 25l11 11-5 1 3 5-3 2-3-5-3 4z\" fill=\"#FFAB19\"/></svg>")}`;
   var ARITHMETIC_OPERATORS = /* @__PURE__ */ new Set([
   	"+",
   	"-",
