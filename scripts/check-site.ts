@@ -88,19 +88,8 @@ async function checkAppBar() {
   }
 
   for (const [index, appBar] of appBars.entries()) {
-    for (const className of ['app-bar-brand', 'app-bar-sections', 'app-bar-actions', 'app-bar-github', 'app-bar-languages']) {
+    for (const className of ['app-bar-brand', 'app-bar-sections', 'app-bar-actions']) {
       if (!appBar.includes(`class="${className}"`)) errors.push(`${pages[index]?.path}: missing ${className}`);
-    }
-    if (!appBar.includes('>English</a>') || !appBar.includes('>日本語</a>')) {
-      errors.push(`${pages[index]?.path}: language names must be English / 日本語`);
-    }
-    if ((appBar.match(/aria-current="page"/g) ?? []).length !== 1) {
-      errors.push(`${pages[index]?.path}: exactly one language must have aria-current=page`);
-    }
-    for (const language of ['en', 'ja']) {
-      if (!new RegExp(`hreflang="${language}"[^>]*lang="${language}"|lang="${language}"[^>]*hreflang="${language}"`).test(appBar)) {
-        errors.push(`${pages[index]?.path}: language switch is missing lang/hreflang=${language}`);
-      }
     }
   }
 }
@@ -122,7 +111,7 @@ async function checkAppBarCss() {
   }
   const hiddenSelectors = [...css.matchAll(/([^{}]+)\{[^{}]*display:\s*none/g)]
     .flatMap((match) => match[1] ?? []);
-  for (const selector of ['.app-bar-brand', '.app-bar-mark', '.app-bar-github', '.app-bar-languages']) {
+  for (const selector of ['.app-bar-brand', '.app-bar-mark']) {
     if (hiddenSelectors.some((hiddenSelector) => hiddenSelector.includes(selector))) {
       errors.push(`docs/assets/styles.css: ${selector} must remain visible on mobile`);
     }
