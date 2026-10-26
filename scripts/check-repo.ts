@@ -97,7 +97,7 @@ function checkPolicy() {
   if (policy.licensePolicy !== 'mpl-2.0') errors.push('repo-policy.json licensePolicy must be mpl-2.0');
   if (policy.packageManager !== 'pnpm') errors.push('repo-policy.json packageManager must be pnpm');
   if (policy.homepage !== 'pages') errors.push('repo-policy.json homepage must record Pages as the user entrypoint');
-  if (policy.node?.minimum !== '22') errors.push('repo-policy.json node.minimum must be 22');
+  if (policy.node?.minimum !== '24') errors.push('repo-policy.json node.minimum must be 24');
   if (policy.integrations?.turboWarpTMExtensionId !== 'kubohiroyatm') {
     errors.push('repo-policy.json must record TurboWarp TM extension ID kubohiroyatm');
   }
@@ -117,9 +117,9 @@ function checkPackageMetadata() {
   if (packageMetadata.homepage !== 'https://kubohiroya.github.io/turbowarp-async-input/') {
     errors.push('package.json homepage must point to the Pages user guide');
   }
-  if (packageMetadata.engines?.node !== '>=22.18.0') errors.push('package.json engines.node must be >=22.18.0');
-  if (packageMetadata.packageManager !== 'pnpm@11.11.0') {
-    errors.push('package.json packageManager must pin pnpm@11.11.0');
+  if (packageMetadata.engines?.node !== '>=24') errors.push('package.json engines.node must be >=24');
+  if (packageMetadata.packageManager !== 'pnpm@11.28.8') {
+    errors.push('package.json packageManager must pin pnpm@11.28.8');
   }
   if (packageMetadata.devDependencies?.['@kubohiroya/vite-plugin-turbowarp-extension'] !== '^0.8.0') {
     errors.push('package.json must depend on @kubohiroya/vite-plugin-turbowarp-extension ^0.8.0');
