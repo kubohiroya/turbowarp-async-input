@@ -6,7 +6,7 @@
   "packageManager": "pnpm",
   "homepage": "pages",
   "node": {
-    "minimum": "22"
+    "minimum": "24"
   },
   "extension": {
     "id": "kubohiroyaasyncinput",

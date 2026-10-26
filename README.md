@@ -373,6 +373,7 @@ Removes every key, pointer, and accumulated pose binding owned by the current ta
 ## Development
 
 ```bash
+npm install --global corepack@latest
 corepack enable
 pnpm install --frozen-lockfile
 pnpm run check
