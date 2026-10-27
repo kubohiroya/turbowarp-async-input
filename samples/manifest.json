@@ -1,0 +1,21 @@
+{
+  "baseURL": "https://kubohiroya.github.io/turbowarp-async-input/",
+  "extension": {
+    "id": "kubohiroyaasyncinput",
+    "bundle": "dist/async-input.js",
+    "unsandboxed": true,
+    "dependencies": [
+      {
+        "id": "lmsTempVars2",
+        "url": "https://extensions.turbowarp.org/Lily/TempVariables2.js"
+      }
+    ]
+  },
+  "samples": [
+    {
+      "name": "wait-for-space",
+      "title": "Async Input minimal demo",
+      "instructions": "Each Space press adds exactly 1. S stops listening."
+    }
+  ]
+}
