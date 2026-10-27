@@ -29,14 +29,14 @@ TurboWarp Temporary Variables向けに、target単位で非同期のキーボー
 versionを付けたnpm packageにレビュー済みのビルドが入っています。
 
 ```bash
-pnpm add --save-exact @kubohiroya/turbowarp-async-input@0.10.0
+pnpm add --save-exact @kubohiroya/turbowarp-async-input@0.10.1
 ```
 
 `node_modules/@kubohiroya/turbowarp-async-input/dist/async-input.js`を読み込むか、version固定の
 CDN URLを使います。
 
 ```text
-https://cdn.jsdelivr.net/npm/@kubohiroya/turbowarp-async-input@0.10.0/dist/async-input.js
+https://cdn.jsdelivr.net/npm/@kubohiroya/turbowarp-async-input@0.10.1/dist/async-input.js
 ```
 
 配布ビルドでは、`config/feature-flags.ts`のコンパイル時feature flag `asyncInput`によってキーとタッチの

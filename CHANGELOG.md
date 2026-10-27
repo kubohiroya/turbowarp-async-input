@@ -2,6 +2,12 @@
 
 Notable changes to this project are recorded here. This project follows Semantic Versioning.
 
+## [0.10.1] - 2026-10-28
+
+### Added
+
+- Serve a runnable wait-for-space demo from the samples on Pages. The runtime API, extension ID, peer ranges and defaults are unchanged.
+
 ## [0.9.0] - 2026-10-26
 
 ### Changed
@@ -92,6 +98,7 @@ Notable changes to this project are recorded here. This project follows Semantic
 - Bilingual GitHub Pages user guide.
 - Versioned npm and CDN installation guidance.
 
+[0.10.1]: https://github.com/kubohiroya/turbowarp-async-input/releases/tag/v0.10.1
 [0.6.0]: https://github.com/kubohiroya/turbowarp-async-input/releases/tag/v0.6.0
 [0.5.0]: https://github.com/kubohiroya/turbowarp-async-input/releases/tag/v0.5.0
 [0.4.0]: https://github.com/kubohiroya/turbowarp-async-input/releases/tag/v0.4.0
