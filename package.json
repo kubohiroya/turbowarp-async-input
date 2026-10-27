@@ -74,8 +74,11 @@
     "pack:check": "npm pack --dry-run --ignore-scripts",
     "release:check": "npm publish --dry-run --access public",
     "repo:check": "node scripts/check-repo.ts",
-    "check": "pnpm run typecheck && pnpm run test && pnpm run build && pnpm run types:composition:check && pnpm run docs:check && pnpm run site:check && pnpm run check:dist && pnpm run repo:check && pnpm run pack:check",
-    "prepack": "pnpm run check"
+    "check": "pnpm run typecheck && pnpm run test && pnpm run build && pnpm run types:composition:check && pnpm run docs:check && pnpm run site:check && pnpm run check:dist && pnpm run repo:check && pnpm run pack:check && pnpm run samples:check",
+    "prepack": "pnpm run check",
+    "samples:build": "node scripts/build-samples.mjs",
+    "samples:check": "node scripts/build-samples.mjs --check && node --test scripts/verify-samples.mjs",
+    "pages:build": "node scripts/prepare-pages.mjs"
   },
   "devDependencies": {
     "@kubohiroya/vite-plugin-turbowarp-extension": "^0.9.0",

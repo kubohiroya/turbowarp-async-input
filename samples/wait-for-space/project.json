@@ -1,0 +1,462 @@
+{
+  "targets": [
+    {
+      "isStage": true,
+      "name": "Stage",
+      "variables": {
+        "sample-state": [
+          "Sample state",
+          ""
+        ],
+        "sample-key-count": [
+          "Received count",
+          ""
+        ],
+        "sample-key-value": [
+          "Runtime key value",
+          ""
+        ],
+        "sample-listening": [
+          "Listener state",
+          ""
+        ]
+      },
+      "lists": {},
+      "broadcasts": {
+        "sample-space-id": "sample-space"
+      },
+      "blocks": {
+        "b1": {
+          "opcode": "event_whenflagclicked",
+          "parent": null,
+          "next": "b2",
+          "inputs": {},
+          "fields": {},
+          "shadow": false,
+          "topLevel": true,
+          "x": 35,
+          "y": 35
+        },
+        "b2": {
+          "opcode": "data_setvariableto",
+          "parent": "b1",
+          "next": "b3",
+          "inputs": {
+            "VALUE": [
+              1,
+              [
+                10,
+                "Running"
+              ]
+            ]
+          },
+          "fields": {
+            "VARIABLE": [
+              "Sample state",
+              "sample-state"
+            ]
+          },
+          "shadow": false,
+          "topLevel": false
+        },
+        "b3": {
+          "opcode": "data_setvariableto",
+          "parent": "b2",
+          "next": "b4",
+          "inputs": {
+            "VALUE": [
+              1,
+              [
+                10,
+                "0"
+              ]
+            ]
+          },
+          "fields": {
+            "VARIABLE": [
+              "Received count",
+              "sample-key-count"
+            ]
+          },
+          "shadow": false,
+          "topLevel": false
+        },
+        "b4": {
+          "opcode": "data_setvariableto",
+          "parent": "b3",
+          "next": "b5",
+          "inputs": {
+            "VALUE": [
+              1,
+              [
+                10,
+                "waiting"
+              ]
+            ]
+          },
+          "fields": {
+            "VARIABLE": [
+              "Runtime key value",
+              "sample-key-value"
+            ]
+          },
+          "shadow": false,
+          "topLevel": false
+        },
+        "b5": {
+          "opcode": "data_setvariableto",
+          "parent": "b4",
+          "next": "b6",
+          "inputs": {
+            "VALUE": [
+              1,
+              [
+                10,
+                "Listening: press Space"
+              ]
+            ]
+          },
+          "fields": {
+            "VARIABLE": [
+              "Listener state",
+              "sample-listening"
+            ]
+          },
+          "shadow": false,
+          "topLevel": false
+        },
+        "b6": {
+          "opcode": "lmsTempVars2_setRuntimeVariable",
+          "parent": "b5",
+          "next": "b7",
+          "inputs": {
+            "VAR": [
+              1,
+              [
+                10,
+                "sample-key"
+              ]
+            ],
+            "STRING": [
+              1,
+              [
+                10,
+                "waiting"
+              ]
+            ]
+          },
+          "fields": {},
+          "shadow": false,
+          "topLevel": false
+        },
+        "b7": {
+          "opcode": "kubohiroyaasyncinput_listenForKeyAndBroadcast",
+          "parent": "b6",
+          "next": "b8",
+          "inputs": {
+            "KEY_ID": [
+              1,
+              [
+                10,
+                "Space"
+              ]
+            ],
+            "RUNTIME_VAR": [
+              1,
+              [
+                10,
+                "sample-key"
+              ]
+            ],
+            "VALUE": [
+              1,
+              [
+                10,
+                "pressed"
+              ]
+            ],
+            "MESSAGE": [
+              1,
+              [
+                10,
+                "sample-space"
+              ]
+            ]
+          },
+          "fields": {},
+          "shadow": false,
+          "topLevel": false
+        },
+        "b8": {
+          "opcode": "data_setvariableto",
+          "parent": "b7",
+          "next": null,
+          "inputs": {
+            "VALUE": [
+              1,
+              [
+                10,
+                "Ready"
+              ]
+            ]
+          },
+          "fields": {
+            "VARIABLE": [
+              "Sample state",
+              "sample-state"
+            ]
+          },
+          "shadow": false,
+          "topLevel": false
+        },
+        "b9": {
+          "opcode": "event_whenbroadcastreceived",
+          "parent": null,
+          "next": "b10",
+          "inputs": {},
+          "fields": {
+            "BROADCAST_OPTION": [
+              "sample-space",
+              "sample-space-id"
+            ]
+          },
+          "shadow": false,
+          "topLevel": true,
+          "x": 560,
+          "y": 35
+        },
+        "b10": {
+          "opcode": "data_setvariableto",
+          "parent": "b9",
+          "next": "b13",
+          "inputs": {
+            "VALUE": [
+              3,
+              "b11",
+              [
+                10,
+                ""
+              ]
+            ]
+          },
+          "fields": {
+            "VARIABLE": [
+              "Received count",
+              "sample-key-count"
+            ]
+          },
+          "shadow": false,
+          "topLevel": false
+        },
+        "b11": {
+          "opcode": "operator_add",
+          "parent": "b10",
+          "next": null,
+          "inputs": {
+            "NUM1": [
+              3,
+              "b12",
+              [
+                10,
+                ""
+              ]
+            ],
+            "NUM2": [
+              1,
+              [
+                10,
+                "1"
+              ]
+            ]
+          },
+          "fields": {},
+          "shadow": false,
+          "topLevel": false
+        },
+        "b12": {
+          "opcode": "data_variable",
+          "parent": "b11",
+          "next": null,
+          "inputs": {},
+          "fields": {
+            "VARIABLE": [
+              "Received count",
+              "sample-key-count"
+            ]
+          },
+          "shadow": false,
+          "topLevel": false
+        },
+        "b13": {
+          "opcode": "data_setvariableto",
+          "parent": "b10",
+          "next": null,
+          "inputs": {
+            "VALUE": [
+              3,
+              "b14",
+              [
+                10,
+                ""
+              ]
+            ]
+          },
+          "fields": {
+            "VARIABLE": [
+              "Runtime key value",
+              "sample-key-value"
+            ]
+          },
+          "shadow": false,
+          "topLevel": false
+        },
+        "b14": {
+          "opcode": "lmsTempVars2_getRuntimeVariable",
+          "parent": "b13",
+          "next": null,
+          "inputs": {
+            "VAR": [
+              1,
+              [
+                10,
+                "sample-key"
+              ]
+            ]
+          },
+          "fields": {},
+          "shadow": false,
+          "topLevel": false
+        },
+        "b15": {
+          "opcode": "event_whenkeypressed",
+          "parent": null,
+          "next": "b16",
+          "inputs": {},
+          "fields": {
+            "KEY_OPTION": [
+              "s",
+              null
+            ]
+          },
+          "shadow": false,
+          "topLevel": true,
+          "x": 560,
+          "y": 330
+        },
+        "b16": {
+          "opcode": "kubohiroyaasyncinput_stopAllInputListeners",
+          "parent": "b15",
+          "next": "b17",
+          "inputs": {},
+          "fields": {},
+          "shadow": false,
+          "topLevel": false
+        },
+        "b17": {
+          "opcode": "data_setvariableto",
+          "parent": "b16",
+          "next": null,
+          "inputs": {
+            "VALUE": [
+              1,
+              [
+                10,
+                "Stopped: click green flag"
+              ]
+            ]
+          },
+          "fields": {
+            "VARIABLE": [
+              "Listener state",
+              "sample-listening"
+            ]
+          },
+          "shadow": false,
+          "topLevel": false
+        }
+      },
+      "comments": {},
+      "currentCostume": 0,
+      "costumes": [
+        {
+          "assetId": "",
+          "name": "Instructions",
+          "bitmapResolution": 1,
+          "md5ext": "backdrop.svg",
+          "dataFormat": "svg",
+          "rotationCenterX": 240,
+          "rotationCenterY": 180
+        }
+      ],
+      "sounds": [],
+      "volume": 100,
+      "layerOrder": 0,
+      "tempo": 60,
+      "videoTransparency": 50,
+      "videoState": "off",
+      "textToSpeechLanguage": null
+    }
+  ],
+  "monitors": [
+    {
+      "id": "sample-key-count",
+      "mode": "default",
+      "opcode": "data_variable",
+      "params": {
+        "VARIABLE": "Received count"
+      },
+      "spriteName": null,
+      "value": "",
+      "width": 0,
+      "height": 0,
+      "x": 18,
+      "y": 115,
+      "visible": true,
+      "sliderMin": 0,
+      "sliderMax": 100,
+      "isDiscrete": true
+    },
+    {
+      "id": "sample-key-value",
+      "mode": "default",
+      "opcode": "data_variable",
+      "params": {
+        "VARIABLE": "Runtime key value"
+      },
+      "spriteName": null,
+      "value": "",
+      "width": 0,
+      "height": 0,
+      "x": 18,
+      "y": 148,
+      "visible": true,
+      "sliderMin": 0,
+      "sliderMax": 100,
+      "isDiscrete": true
+    },
+    {
+      "id": "sample-listening",
+      "mode": "default",
+      "opcode": "data_variable",
+      "params": {
+        "VARIABLE": "Listener state"
+      },
+      "spriteName": null,
+      "value": "",
+      "width": 0,
+      "height": 0,
+      "x": 18,
+      "y": 181,
+      "visible": true,
+      "sliderMin": 0,
+      "sliderMax": 100,
+      "isDiscrete": true
+    }
+  ],
+  "extensions": [],
+  "meta": {
+    "semver": "3.0.0",
+    "vm": "0.2.0",
+    "agent": "TurboWarp Plus minimal samples"
+  }
+}

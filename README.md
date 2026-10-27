@@ -11,6 +11,14 @@ See the illustrated [English user guide](https://kubohiroya.github.io/turbowarp-
 or the [Japanese user guide](https://kubohiroya.github.io/turbowarp-async-input/ja/) for setup,
 examples, listener ownership, and troubleshooting.
 
+## Minimal demo
+
+[Open in TurboWarp Editor](https://turbowarp.org/editor?project_url=https%3A%2F%2Fkubohiroya.github.io%2Fturbowarp-async-input%2Fsamples%2Fwait-for-space.sb3) · [Download SB3](https://kubohiroya.github.io/turbowarp-async-input/samples/wait-for-space.sb3)
+
+Click the green flag, click the stage to focus it, then press Space: the counter increases by one and the runtime value becomes pressed. S unregisters the binding; the Stop button also releases it. A new green flag resets the count and registers once. Editing a text field does not trigger the binding. The SB3 declares official Temporary Variables as a dependency, so loading it requires network access. No camera, microphone, or external device is needed.
+
+See [samples/README.md](samples/README.md) for editable sources and regeneration.
+
 ## Installation
 
 Build or download `dist/async-input.js`, then load it as a local custom extension in TurboWarp

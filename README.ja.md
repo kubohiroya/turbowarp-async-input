@@ -11,6 +11,14 @@ TurboWarp Temporary Variables向けに、target単位で非同期のキーボー
 [English user guide](https://kubohiroya.github.io/turbowarp-async-input/)または
 [日本語ユーザーガイド](https://kubohiroya.github.io/turbowarp-async-input/ja/)を参照してください。
 
+## 最小デモ
+
+[TurboWarp Editorで開く](https://turbowarp.org/editor?project_url=https%3A%2F%2Fkubohiroya.github.io%2Fturbowarp-async-input%2Fsamples%2Fwait-for-space.sb3) · [SB3ダウンロード](https://kubohiroya.github.io/turbowarp-async-input/samples/wait-for-space.sb3)
+
+緑の旗→ステージをクリックしてフォーカス→Spaceで受信カウンターが1ずつ増え、runtime値がpressedになります。Sで登録解除、停止ボタンでも解除します。再度緑の旗で0から再登録します。入力欄を編集中は反応しません。公式Temporary VariablesをSB3の関連拡張として記録しているため、その取得に通信が必要です。カメラ・マイク・機器は不要です。
+
+編集元と再生成方法は[samples/README.md](samples/README.md)を参照。
+
 ## インストール
 
 `dist/async-input.js`をビルドまたはダウンロードし、TurboWarp Desktopで**サンドボックス化せずに実行**を
