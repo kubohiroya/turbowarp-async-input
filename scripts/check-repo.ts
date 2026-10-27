@@ -121,8 +121,8 @@ function checkPackageMetadata() {
   if (packageMetadata.packageManager !== 'pnpm@11.28.8') {
     errors.push('package.json packageManager must pin pnpm@11.28.8');
   }
-  if (packageMetadata.devDependencies?.['@kubohiroya/vite-plugin-turbowarp-extension'] !== '^0.8.0') {
-    errors.push('package.json must depend on @kubohiroya/vite-plugin-turbowarp-extension ^0.8.0');
+  if (packageMetadata.devDependencies?.['@kubohiroya/vite-plugin-turbowarp-extension'] !== '^0.9.0') {
+    errors.push('package.json must depend on @kubohiroya/vite-plugin-turbowarp-extension ^0.9.0');
   }
   for (const command of ['build', 'check', 'prepack']) {
     if (/\bnpm run\b/u.test(packageMetadata.scripts?.[command] ?? '')) {
