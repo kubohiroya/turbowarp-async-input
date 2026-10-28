@@ -1,8 +1,12 @@
 {
   "name": "@kubohiroya/turbowarp-async-input",
-  "version": "0.10.1",
+  "version": "0.11.0",
   "description": "A target-scoped asynchronous keyboard, pointer, and accumulated pose input extension for TurboWarp.",
-  "author": "Hiroya Kubo <hiroya@cuc.ac.jp>",
+  "author": {
+    "name": "Hiroya Kubo",
+    "email": "hiroya@cuc.ac.jp",
+    "url": "https://github.com/kubohiroya"
+  },
   "license": "MPL-2.0",
   "repository": {
     "type": "git",
@@ -43,8 +47,8 @@
     "registry": "https://registry.npmjs.org/"
   },
   "peerDependencies": {
-    "@kubohiroya/turbowarp-jsqr": "^0.6.0",
-    "@kubohiroya/turbowarp-webusb-pasori": "^0.5.0"
+    "@kubohiroya/turbowarp-jsqr": "^0.7.0",
+    "@kubohiroya/turbowarp-webusb-pasori": "^0.6.0"
   },
   "peerDependenciesMeta": {
     "@kubohiroya/turbowarp-jsqr": {
@@ -81,7 +85,7 @@
     "pages:build": "node scripts/prepare-pages.mjs"
   },
   "devDependencies": {
-    "@kubohiroya/vite-plugin-turbowarp-extension": "^0.9.0",
+    "@kubohiroya/vite-plugin-turbowarp-extension": "^0.10.0",
     "@types/node": "^22.20.1",
     "typescript": "^5.9.3",
     "vite": "^8.2.2",
