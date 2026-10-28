@@ -6,7 +6,7 @@ interface PackageMetadata {
   name: string;
   version: string;
   description?: string;
-  author?: string;
+  author?: {name: string; email: string; url: string};
   license?: string;
   homepage?: string;
   packageManager?: string;
@@ -107,7 +107,17 @@ function checkPolicy() {
 }
 
 function checkPackageMetadata() {
-  for (const key of ['description', 'author', 'license', 'homepage', 'packageManager'] as const) {
+  if (
+    typeof packageMetadata.author !== 'object' ||
+    packageMetadata.author === null ||
+    Array.isArray(packageMetadata.author) ||
+    packageMetadata.author.name !== 'Hiroya Kubo' ||
+    packageMetadata.author.email !== 'hiroya@cuc.ac.jp' ||
+    packageMetadata.author.url !== 'https://github.com/kubohiroya'
+  ) {
+    errors.push('package.json author must use the approved name, email, and URL');
+  }
+  for (const key of ['description', 'license', 'homepage', 'packageManager'] as const) {
     const value = packageMetadata[key];
     if (typeof value !== 'string' || value.trim().length === 0) {
       errors.push(`package.json ${key} must be a non-empty string`);
@@ -121,8 +131,8 @@ function checkPackageMetadata() {
   if (packageMetadata.packageManager !== 'pnpm@11.28.8') {
     errors.push('package.json packageManager must pin pnpm@11.28.8');
   }
-  if (packageMetadata.devDependencies?.['@kubohiroya/vite-plugin-turbowarp-extension'] !== '^0.9.0') {
-    errors.push('package.json must depend on @kubohiroya/vite-plugin-turbowarp-extension ^0.9.0');
+  if (packageMetadata.devDependencies?.['@kubohiroya/vite-plugin-turbowarp-extension'] !== '^0.10.0') {
+    errors.push('package.json must depend on @kubohiroya/vite-plugin-turbowarp-extension ^0.10.0');
   }
   for (const command of ['build', 'check', 'prepack']) {
     if (/\bnpm run\b/u.test(packageMetadata.scripts?.[command] ?? '')) {
