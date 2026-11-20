@@ -1,6 +1,6 @@
 {
   "name": "@kubohiroya/turbowarp-async-input",
-  "version": "0.13.0",
+  "version": "0.13.1",
   "description": "A target-scoped asynchronous keyboard, pointer, and accumulated pose input extension for TurboWarp.",
   "author": {
     "name": "Hiroya Kubo",
@@ -90,5 +90,11 @@
     "typescript": "^5.9.3",
     "vite": "^8.2.2",
     "vitest": "^4.1.10"
+  },
+  "turbowarpExtension": {
+    "resourceDeclaration": {
+      "schemaVersion": 1,
+      "resources": []
+    }
   }
 }
