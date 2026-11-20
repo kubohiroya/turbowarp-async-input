@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@kubohiroya/turbowarp-jsqr':
-        specifier: ^0.8.0
-        version: 0.8.0(@types/emscripten@1.41.6)
+        specifier: ^0.9.0
+        version: 0.9.0(@types/emscripten@1.41.6)
       '@kubohiroya/turbowarp-webusb-pasori':
         specifier: ^0.7.0
         version: 0.7.0
@@ -192,11 +192,11 @@ packages:
   '@jridgewell/sourcemap-codec@1.5.5':
     resolution: {integrity: sha512-cYQ9310grqxueWbl+WuIUIaiUaDcj7WOq5fVhEljNVgRfOUhY9fy2zTvfoqWsnebh8Sl70VScFbICvJnLKB0Og==}
 
-  '@kubohiroya/turbowarp-jsqr@0.8.0':
-    resolution: {integrity: sha512-cGQi0wc1Hm4xbr39xbU8aXdVDD6Ka9guZLXRUtw7mCDNy/fAzt8bzRjqf8IbsYyV3ynEzkjiKoxRP26AT7lHuA==}
+  '@kubohiroya/turbowarp-jsqr@0.9.0':
+    resolution: {integrity: sha512-z27J7odUPscP7qPFM1YW/ucvsFby7woQq6RFbVlBRzgC7dlYOTmPJrOg8sHGpf5Rz0xsEG6tITj5G2k50aqA8Q==}
     engines: {node: '>=24'}
     peerDependencies:
-      '@kubohiroya/turbowarp-camera-source': ^0.23.0
+      '@kubohiroya/turbowarp-camera-source': ^0.24.0
     peerDependenciesMeta:
       '@kubohiroya/turbowarp-camera-source':
         optional: true
@@ -651,8 +651,8 @@ packages:
     engines: {node: '>=8'}
     hasBin: true
 
-  zxing-wasm@3.1.4:
-    resolution: {integrity: sha512-1+v8p7sauddySVNG+ye7GD/0TS95BG2ycdkrC+EnBrFBFkHeIghzUt2yVjtx3NucJeNrQnhT8yGAIz60Vx9o0w==}
+  zxing-wasm@3.1.7:
+    resolution: {integrity: sha512-LI94ndlOY+xoqlkNcc0EwByrMpUXKrCX171EQ38kGWqpiRq/gcnC+ZrbRipvxI3uV4LaDtNlKo1p9Uayg1sesQ==}
     peerDependencies:
       '@types/emscripten': '>=1.39.6'
 
@@ -738,9 +738,9 @@ snapshots:
 
   '@jridgewell/sourcemap-codec@1.5.5': {}
 
-  '@kubohiroya/turbowarp-jsqr@0.8.0(@types/emscripten@1.41.6)':
+  '@kubohiroya/turbowarp-jsqr@0.9.0(@types/emscripten@1.41.6)':
     dependencies:
-      zxing-wasm: 3.1.4(@types/emscripten@1.41.6)
+      zxing-wasm: 3.1.7(@types/emscripten@1.41.6)
     transitivePeerDependencies:
       - '@types/emscripten'
 
@@ -1078,7 +1078,7 @@ snapshots:
       siginfo: 2.0.0
       stackback: 0.0.2
 
-  zxing-wasm@3.1.4(@types/emscripten@1.41.6):
+  zxing-wasm@3.1.7(@types/emscripten@1.41.6):
     dependencies:
       '@types/emscripten': 1.41.6
       type-fest: 5.10.0
