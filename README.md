@@ -101,7 +101,7 @@ topmost-pick, and uniqueness flags. The composition ignores an observation unles
 are true, then resolves the first actor ID present in `candidates`.
 
 `qrSource` provides `waitForQrText({cameraId, signal})`, typically from
-`@kubohiroya/turbowarp-jsqr`. `cameraId` selects a named Camera Source stream such as `qr`.
+`@kubohiroya/turbowarp-zxing`. `cameraId` selects a named Camera Source stream such as `qr`.
 `nfcSource` provides `waitForNfcIdm({readerId, signal})`, typically from
 `@kubohiroya/turbowarp-webusb-pasori`. `readerId` selects a named PaSoRi such as `left` or
 `right`. The composition accepts only values present in `candidates`; non-candidate scans keep
