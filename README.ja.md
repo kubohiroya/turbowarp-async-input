@@ -99,7 +99,7 @@ const selectedNfc = await input.waitForNfcCandidate({
 最初のactor IDで解決します。
 
 `qrSource`は`waitForQrText({cameraId, signal})`を提供します。通常は
-`@kubohiroya/turbowarp-jsqr`が担います。`cameraId`は`qr`のような名前付きのCamera Source streamを
+`@kubohiroya/turbowarp-zxing`が担います。`cameraId`は`qr`のような名前付きのCamera Source streamを
 選びます。`nfcSource`は`waitForNfcIdm({readerId, signal})`を提供し、通常は
 `@kubohiroya/turbowarp-webusb-pasori`が担います。`readerId`は`left`や`right`のような名前付きの
 PaSoRiを選びます。compositionは`candidates`に含まれる値だけを受理し、候補外の読み取りでは、sourceが

@@ -47,11 +47,11 @@
     "registry": "https://registry.npmjs.org/"
   },
   "peerDependencies": {
-    "@kubohiroya/turbowarp-jsqr": "^0.10.0",
+    "@kubohiroya/turbowarp-zxing": "^0.11.0",
     "@kubohiroya/turbowarp-webusb-pasori": "^0.8.0"
   },
   "peerDependenciesMeta": {
-    "@kubohiroya/turbowarp-jsqr": {
+    "@kubohiroya/turbowarp-zxing": {
       "optional": true
     },
     "@kubohiroya/turbowarp-webusb-pasori": {
